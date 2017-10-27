@@ -56,16 +56,6 @@ tab.viosex <- df.viosex %>%
   mutate(desc_delito = factor(DELI_FC, levels = cods.viosex, labels = labs.viosex),
          edad_orden = factor(edad, levels = edad.orden)) 
 
-
-tab.viosex %>% 
-  group_by(edad_orden, desc_delito) %>% 
-  summarise(n_tt = sum(TT_VICT, na.rm = T)) %>% 
-  ungroup() %>% 
-  ggplot(aes(x = edad_orden, y = n_tt)) + 
-  geom_bar(stat = "identity") + 
-  facet_wrap(~desc_delito, scales = "free") + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
 tab.viosex %>% 
   group_by(edad_orden, desc_delito, sexo_rec) %>% 
   summarise(n_tt = sum(TT_VICT, na.rm = T)) %>% 
