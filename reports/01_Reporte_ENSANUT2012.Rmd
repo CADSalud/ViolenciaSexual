@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+ENSANUT 2012
+
+Esta encuesta ofrece información que constituye un diagnóstico actualizado de las condiciones de salud de los mexicanos, así como sobre la respuesta del sistema de salud a estas condiciones, y los resultados alcanzados. 
+
+La muestra tiene representatividad nacional, estatal, por estratos nacionales
+urbano y rural, y una sobremuestra de los hogares con mayores carencias del país. La base de datos corresponde al nivel individuo y se cuenta con un ponderador para poder realizar las estimaciones.
+ 
+Las preguntas relacionadas con violencia sexual se describen a continuación:
+
+1. Del cuestionario de HOGAR, de la sección II. CARACTERÍSTICAS DEMOGRÁFICAS, se pregunta sobre el <b>estado conyugal</b> de los adolescentes lo cual revela cifras sobre matrimonio precoz en México.
+
+<b>adol_temp</b>: corresponde a adolescentes en edad temprana de 12 a 14 años. *No se pregunta a menores de 12 años.
+
+<b>adol_tard</b>: corresponde a adolescentes en edad tardía de 15 a 19 años.
+
+<b>nsolt</b>: corresponden a los separados, divorciados, viudos, casados o unión libre.
+
+<b>solt</b>: corresponden a los solteros.
+
+Como se puede observar en México hay aproximadamente 28,909 jóvenes entre 12 y 14 años no solteros. 
+
+```{r echo=FALSE}
+library(tidyverse)
+library(Hmisc)
+library(janitor)
+hogar <- spss.get("/Users/gabriela/Documents/github/vios/ViolS/integrantes.sav", 
+                  use.value.labels=TRUE,reencode="LATIN1")
+
+hogar_adol <- hogar %>% 
+  as_tibble() %>% 
+  filter(edad <= 19 & edad >=12 & !is.na(h219)) %>% 
+  select(folio,intp, entidad, munici, edad, sexo, h219,pondei) %>% 
+  mutate(redad=ifelse(edad<=14,"adol_temp","adol_tard"),
+         sol219 = ifelse(h219=="está soltero(a)?",1,0),
+         scony=ifelse(sol219==1,"solt", "nsolt"))
+
+hogar_adol %>% 
+  group_by(redad,scony) %>% 
+  summarise(casos = round(sum(pondei),0)) %>% 
+  ungroup() %>% 
+  group_by(redad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))
+
+
+```
+
+Si observamos los resultados por sexo, hay 8.6 niñas no solteras por cada niño no soltero entre 12 y 14 años de edad. Entre 15 y 19 años de edad, hay 2.8 mujeres no solteras por cada hombre soltero.
+
+
+```{r echo=FALSE}
+hogar_adol %>% 
+  group_by(redad,scony,sexo) %>% 
+  summarise(casos = round(sum(pondei),0)) %>% 
+  ungroup() %>% 
+  group_by(redad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))
+```
+
+2. Del cuestionario de HOGAR, de la sección III. Situación de salud y utilización de servicios de salud, se pregunta sobre las <b>razones por hospitalización en el último año</b> de los adolescentes lo cual revela cifras sobre embarazo adolescente.
+
+```{r echo=FALSE}
+hogar_hosp <- hogar %>% 
+  filter(edad <= 19 & edad >=12) %>% 
+  select(folio,intp, entidad, munici, edad, sexo, h301,h302,h311,h312,pondei) %>%
+  mutate(redad=ifelse(edad<=14,"adol_temp","adol_tard"),
+         hosp_emb=ifelse(h311=="Sí" & (h312=="Parto"| h312=="Cesárea"),"si", "no"))
+
+hogar_hosp %>% 
+  group_by(redad,hosp_emb) %>% 
+  summarise(casos = round(sum(pondei),0)) %>% 
+  ungroup() %>% 
+  group_by(redad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))
+
+```
+
+```{r echo=FALSE}
+hogar_g<-hogar_adol %>% 
+  group_by(redad,scony,entidad) %>% 
+  summarise(casos = round(sum(pondei),0)) %>% 
+  ungroup() %>% 
+  group_by(redad,entidad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         total_ent = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))%>%
+  filter(scony=="nsolt")
+
+ggplot(subset(hogar_g,redad %in% c("adol_tard" , "adol_temp"))) + 
+         geom_col(aes(hogar_g$entidad, hogar_g$porc_edad, group=redad, fill=redad)) +
+  theme_bw()
+
+
+```
+
+
+
+3. Del cuestionario de ADOLESCENTES, de la sección II. INFECCIÓNES DE TRANSMISIÓN SEXUAL Y SALUD REPRODUCTIVA
+
+2.06 ¿A qué edad tuviste tu primera relación sexual?
+0 - SIN EXPERIENCIA SEXUAL
+1 - CON EXPERIENCIA SEXUAL
+```{r echo=FALSE}
+adol <- spss.get("/Users/gabriela/Documents/github/vios/ViolS/Adolescentes.sav", 
+                  use.value.labels=TRUE,reencode="LATIN1")
+
+adol_sex <- adol %>% 
+  as_tibble() %>% 
+  filter(edad <= 19 & edad >=10 & !is.na(d206)) %>% 
+  select(folio,intp, entidad, munici, edad, sexo, d206, d207,d212, d212a, d213, pondef) %>% 
+  mutate(redad=ifelse(edad<=14,"adol_temp","adol_tard"),
+         sinexp = ifelse(d206!=0,1,0),
+         edadp = ifelse(d207<15,0,ifelse(d207>14 & d207<20,1,2)))
+
+adol_sex %>% 
+  group_by(redad,sinexp) %>% 
+  summarise(casos = round(sum(pondef),0)) %>% 
+  ungroup() %>% 
+  group_by(redad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))
+
+```
+
+2.07¿Qué edad tenía tu pareja de esa primera relación sexual? d207
+
+```{r echo=FALSE}
+adol_sex %>% 
+  filter(!is.na(edadp)) %>%
+  group_by(redad,edadp) %>% 
+  summarise(casos = round(sum(pondef),0)) %>% 
+  ungroup() %>% 
+  group_by(redad) %>% 
+  mutate(total_edad = round(sum(casos),0),
+         porc_edad = round((casos/total_edad)*100,2))
+
+```
+
+
+
+
