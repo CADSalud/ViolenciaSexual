@@ -4,9 +4,9 @@
 library(tidyverse)
 library(foreign)
 
-tab_demos <- read.dbf("data/envipe/bd_envipe2017_dbf/TSDem.dbf") %>% 
+tab_demos_envipe <- read.dbf("data/envipe/bd_envipe2017_dbf/TSDem.dbf") %>% 
   as_tibble()
-tab_demos %>% head
+tab_demos_envipe %>% head
 
 
 tab_vic2 <- read.dbf("data/envipe/bd_envipe2017_dbf/TPer_Vic2.dbf") %>% 
@@ -29,6 +29,10 @@ tab_modvic <- read.dbf("data/envipe/bd_envipe2017_dbf/TMod_Vic.dbf") %>%
 tab_modvic %>% names()
 tab_modvic %>% data.frame %>% head
 
-names(tab_vic1)
 names(tab_vic2)
 names(tab_modvic)
+
+
+cache("tab_vic2")
+cache("tab_modvic")
+cache("tab_demos_envipe")
