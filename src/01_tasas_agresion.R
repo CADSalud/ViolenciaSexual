@@ -4,6 +4,12 @@ library(ProjectTemplate)
 load.project()
 
 source("munge/01_envin.R")
+load("cache/tab_sec_xi.RData")
+load("cache/tab_sec_x.RData")
+load("cache/tab_vic2.RData")
+
+
+
 
 # TASA DE AGRESIÓN ----
 
