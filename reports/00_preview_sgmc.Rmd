@@ -1,0 +1,129 @@
+---
+title: "Reporte Previo"
+date: "11/26/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, fig.align = "center", 
+                      fig.width = 5, fig.height = 4)
+library(tidyverse)
+library(stringr)
+load("../cache/input.l.RData")
+```
+
+## Indicadores de violación en la adolescencia
+
+- Endireh 2016
+- Envipe 2017
+- Envin 2007
+
+
+#### Bases 
+
+Total mujeres mayores de 15 años en 2016 (ENDIREH 2016): `r format(input.l$base_endireh$base_mujeres, big.mark = ",")`
+
+Total población mayor de 18 años en 2016 (ENVIPE 2017): `r format(unique(input.l$tab_agr_gral_envipe$base), big.mark = ",")`.
+De los que `r format(input.l$base_sexo_envipe$base[2], big.mark = ",")` 
+son mujeres.
+
+
+Total mujeres entre 15 años y 24 años en 2007 (ENVIN 2007): `r format(input.l$base_envin, big.mark = ",")`
+
+
+
+### Generales
+
+De acuerdo a la ENVIPE 2017 el `r round(100*input.l$tab_agr_gral_envipe$prop[1],2)`% de
+los entrevistados sufrió una violación sexual durante 2016. El `r round(100*input.l$tab_agr_sexo_envipe$prop_sex[1],2)`% 
+(`r format(input.l$tab_agr_sexo_envipe$nfac[1], big.mark = ",")`)
+de los hombres sufrió una violación. De mujeres el `r round(100*input.l$tab_agr_sexo_envipe$prop_sex[2],2)`% 
+(`r format(input.l$tab_agr_sexo_envipe$nfac[2], big.mark = ",")`)
+fueron agredidas.
+
+La proporción de violaciones por sexo:
+```{r}
+input.l$gg_agr_sexo_envipe
+```
+
+
+
+De acuerdo a la ENVIN 2007, el `r round(input.l$tab_agr_muj_envin$prop[1], 2)`% 
+(`r format(input.l$tab_agr_muj_envin$nfac[1], big.mark = ",")`) 
+de mujeres entre 15 y 24 años han sido obligadas alguna vez a tener 
+relaciones sexuales.  De las cuales el 
+`r round(input.l$tab_agr_emb_envin$prop[1], 2)`% 
+(`r format(input.l$tab_agr_emb_envin$nfac[1], big.mark = ",")`)
+declaró quedar embarazada cuando pasó la agresión.
+
+De estas mujeres, la distribución de la primera vez de abuso 
+tiene la siguiente distribución:
+```{r}
+input.l$gg_agr_edad1era_envin
+```
+
+
+
+
+
+
+
+
+### Adolescencia Temprana
+
+
+Pregunta: *Durante su infancia (hasta antes de cumplir 15 años), ¿dígame si vivió o le ocurrieron algunas de las situaciones que se mencionan en la tarjeta? ¿La obligaron a tener relaciones sexuales bajo amenazas o usando la fuerza?*
+
+```{r}
+input.l$gg_agr_temp_endireh
+```
+
+
+
+
+### Adolescencia Tardía
+
+
+
+```{r, fig.width=6}
+input.l$gg_agr_tard_endireh
+```
+
+
+
+Preguntas: *- Estudiante: Durante su vida de estudiante, ¿alguna persona de las escuelas a las que asistió a estudiar, (como maestra o maestro, director, prefecto, compañero de clase o alumno de la escuela u otro trabajador o persona de la escuela) la han obligado a tener relaciones sexuales en contra de su voluntad?
+- Trabajo:	Dígame si en alguno de sus trabajos, ¿Alguna o algunas personas que trabajaban con usted	la han obligado a tener relaciones sexuales en contra de su voluntad?
+- Comunidad:	¿Alguna vez la han obligado a tener relaciones sexuales en contra de su voluntad?
+- Familia:	Durante el último año, de octubre de 2015 a la fecha, ¿alguna o algunas personas de su familia (no incluya a su pareja o esposo) la han obligado a tener relaciones sexuales en contra de su voluntad
+- Pareja:	¿Alguna de sus parejas o esposo(s) anteriores, ¿durante su relación o después de separarse la agredió sexualmente (intentó obligarla o la obligó a tener relaciones sexuales por la fuerza o con amenazas)?*
+
+
+<br>
+
+## Otras Referencias
+
+
+```{r}
+input.l$gg_gpoedad_primerh_endireh
+```
+
+```{r, fig.width=7}
+input.l$gg_edad_primerh
+```
+
+```{r, fig.width=7}
+input.l$gg_gpoedad_primerarel_endireh
+```
+
+```{r}
+input.l$gg_gpoedad_primeraun
+```
+
+```{r, fig.width=7}
+input.l$gg_prop_edadparejaunion_endireh
+```
+
+```{r, fig.width=7}
+input.l$gg_box_edadparejaunion_endireh 
+```
+
