@@ -101,7 +101,7 @@ el `r input.l$tab_agr_tard_endireh$p`%
 de las mujeres entrevistadas de 15 a 19 años 
 (`r format(input.l$tab_agr_tard_endireh$base, big.mark = ",")`) han sido
 obligadas a tener relaciones sexuales alguna vez en su vida o su pareja
-ha intentado obligarlas en algun momento. 
+ha intentado obligarlas en algún momento. 
 
 ```{r, fig.width=5, fig.height=3.5}
 input.l$gg_agr_tard_amb_endireh + 
