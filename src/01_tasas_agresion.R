@@ -56,6 +56,9 @@ tab_union <- tab_sec_vi %>%
 dim(tab_union)
 tab_union %>% data.frame() %>% head()
 
+
+
+
 tab <- tab_union %>%
   filter(edad_gpo == "[15,19]") %>% 
   gather(pregunta, resp, P6_6_15:P11_12_5) %>%
@@ -84,14 +87,15 @@ gg <- tab %>%
          pregunta != "infancia") %>% 
   ggplot(aes(x = pregunta, 
              y = prop_sin) )+ 
-  geom_bar(stat = "identity", position = "stack") + 
+  geom_bar(stat = "identity", position = "stack", 
+           fill = "blue", alpha = .5) + 
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Ambiente") + 
-  ggtitle("Proporción de mujeres respuesta sí por ambiente.",
+  ggtitle("Proporción de mujeres agredidas por ambiente.", 
           "Mujeres entre 15 y 19 años.")
 gg 
-input.l$gg_agr_tard_endireh <- gg
+input.l$gg_agr_tard_amb_endireh <- gg
 
 gg <- tab_union %>%
   mutate(P11_12_5 = factor(P11_12_5, 
@@ -107,14 +111,65 @@ gg <- tab_union %>%
   filter(P11_12_5 != "No") %>% 
   ggplot(aes(x = P11_12_5, 
              y = prop) )+ 
-  geom_bar(stat = "identity", position = "stack") + 
-  geom_label(aes(label = format(nfac, big.mark = ","))) + 
+  geom_bar(stat = "identity", position = "stack", width = .6,
+           fill = "blue", alpha = .5) + 
+  geom_label(aes(y = prop + .15, 
+                 label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Respuesta") + 
   ggtitle("Proporción de mujeres agredidas\nantes de cumplir 15 años.",
           "Mujeres de mas de 15 años.")
 gg 
 input.l$gg_agr_temp_endireh <- gg
+
+tab <- tab_union %>%
+  # filter(edad_gpo == "[15,19]") %>% 
+  dplyr::select(ID_MUJ, ID_VIV, UPM, FAC_MUJ, FAC_VIV,
+                edad_gpo,
+                P6_6_15:P11_12_5) %>% 
+  gather(pregunta, resp, P6_6_15:P11_12_5, -P12_17_5) %>%
+  mutate(pregunta = fct_recode(pregunta,
+                               `estudiante` = "P6_6_15",
+                               `trabajo` = "P7_9_13",
+                               `comunidad` = "P8_1_13",
+                               `familia` = "P10_1_3",
+                               `pareja` = "P12_17_5",
+                               `infancia` = "P11_12_5"),
+         value = ifelse(resp != 1 | is.na(resp), F, T)) %>% 
+  group_by(ID_MUJ, ID_VIV, UPM, FAC_MUJ) %>% 
+  summarise(acum = sum(value) > 0) %>%
+  ungroup %>% 
+  mutate(resp = FAC_MUJ*as.numeric(acum)) %>% 
+  summarise(n = sum(resp),
+            base = sum(FAC_MUJ), 
+            p = 100*n/base)
+tab
+input.l$tab_agr_endireh <- tab
+
+
+tab <- tab_union %>%
+  filter(edad_gpo == "[15,19]") %>%
+  dplyr::select(ID_MUJ, ID_VIV, UPM, FAC_MUJ, FAC_VIV,
+                edad_gpo,
+                P6_6_15:P11_12_5) %>% 
+  gather(pregunta, resp, P6_6_15:P11_12_5, -P12_17_5) %>%
+  mutate(pregunta = fct_recode(pregunta,
+                               `estudiante` = "P6_6_15",
+                               `trabajo` = "P7_9_13",
+                               `comunidad` = "P8_1_13",
+                               `familia` = "P10_1_3",
+                               `pareja` = "P12_17_5",
+                               `infancia` = "P11_12_5"),
+         value = ifelse(resp != 1 | is.na(resp), F, T)) %>% 
+  group_by(ID_MUJ, ID_VIV, UPM, FAC_MUJ) %>% 
+  summarise(acum = sum(value) > 0) %>%
+  ungroup %>% 
+  mutate(resp = FAC_MUJ*as.numeric(acum)) %>% 
+  summarise(n = sum(resp),
+            base = sum(FAC_MUJ), 
+            p = 100*n/base)
+tab
+input.l$tab_agr_tard_endireh <- tab
 
 # cache("input.l")
 
@@ -159,11 +214,12 @@ gg <- tab %>%
   filter(ocurrió == 1) %>% 
   ggplot(aes(x = SEXO, 
              y = prop_ocu) )+ 
-  geom_bar(stat = "identity", position = "stack") + 
+  geom_bar(stat = "identity", position = "stack", width = .5,
+           fill = "blue", alpha = .5) + 
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Sexo") + 
-  ggtitle("Proporción de personas agredidas por sexo.",
+  ggtitle("Proporción de personas agredidas \npor sexo.",
           "Hombres y mujeres mayores de 18 años.")
 gg
 input.l$gg_agr_sexo_envipe <- gg
@@ -219,7 +275,8 @@ input.l$tab_agr_edad1era_envin <- tab
 
 gg <- ggplot(tab, aes(x = edad_gpo, 
                 y = prop)) + 
-  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", 
+           fill = "blue", alpha = .5) + 
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Grupo de edad") + 

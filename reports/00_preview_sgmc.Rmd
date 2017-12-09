@@ -6,9 +6,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = F, fig.align = "center", 
-                      fig.width = 5, fig.height = 4)
+                      fig.width = 4, fig.height = 3)
 library(tidyverse)
 library(stringr)
+theme_set(theme_bw())
 load("../cache/input.l.RData")
 ```
 
@@ -18,6 +19,7 @@ load("../cache/input.l.RData")
 - Envipe 2017
 - Envin 2007
 
+----
 
 #### Bases 
 
@@ -27,23 +29,26 @@ Total población mayor de 18 años en 2016 (ENVIPE 2017): `r format(unique(input
 De los que `r format(input.l$base_sexo_envipe$base[2], big.mark = ",")` 
 son mujeres.
 
+Total mujeres entre 15 años y 24 años en 2007 
+(ENVIN 2007): `r format(input.l$base_envin, big.mark = ",")`
 
-Total mujeres entre 15 años y 24 años en 2007 (ENVIN 2007): `r format(input.l$base_envin, big.mark = ",")`
 
+---
 
 
 ### Generales
 
 De acuerdo a la ENVIPE 2017 el `r round(100*input.l$tab_agr_gral_envipe$prop[1],2)`% de
-los entrevistados sufrió una violación sexual durante 2016. El `r round(100*input.l$tab_agr_sexo_envipe$prop_sex[1],2)`% 
+la población mayor de edad sufrió una violación sexual durante 2016. El `r round(100*input.l$tab_agr_sexo_envipe$prop_sex[1],2)`% 
 (`r format(input.l$tab_agr_sexo_envipe$nfac[1], big.mark = ",")`)
 de los hombres sufrió una violación. De mujeres el `r round(100*input.l$tab_agr_sexo_envipe$prop_sex[2],2)`% 
 (`r format(input.l$tab_agr_sexo_envipe$nfac[2], big.mark = ",")`)
 fueron agredidas.
 
 La proporción de violaciones por sexo:
-```{r}
-input.l$gg_agr_sexo_envipe
+```{r, fig.height=4}
+input.l$gg_agr_sexo_envipe + 
+  labs(caption = "Fuente: INEGI ENVIPE 2017")
 ```
 
 
@@ -56,37 +61,50 @@ relaciones sexuales.  De las cuales el
 (`r format(input.l$tab_agr_emb_envin$nfac[1], big.mark = ",")`)
 declaró quedar embarazada cuando pasó la agresión.
 
-De estas mujeres, la distribución de la primera vez de abuso 
-tiene la siguiente distribución:
+De estas mujeres, la distribución de edad de la primera vez de abuso 
+es la siguiente:
 ```{r}
-input.l$gg_agr_edad1era_envin
+input.l$gg_agr_edad1era_envin + 
+  ylim(c(0, 52))+ 
+  labs(caption = "Fuente: INEGI ENVIN 2007")
 ```
 
 
 
 
-
+De acuerdo a ENDIREH 2016 
+el `r round(input.l$tab_agr_endireh$p, 1)`% 
+(`r format(input.l$tab_agr_endireh$n, big.mark = ",")`)
+de las mujeres (`r format(input.l$tab_agr_endireh$base, big.mark = ",")`) 
+fueron agredidas alguna vez en su vida. Esta cifra puede estar sub estimada
+dado que se descarta la pregunta sobre agresión en pareja porque 
+incluye abuso sexual con intento de abuso sexual.
 
 
 
 ### Adolescencia Temprana
 
 
-Pregunta: *Durante su infancia (hasta antes de cumplir 15 años), ¿dígame si vivió o le ocurrieron algunas de las situaciones que se mencionan en la tarjeta? ¿La obligaron a tener relaciones sexuales bajo amenazas o usando la fuerza?*
 
-```{r}
-input.l$gg_agr_temp_endireh
+
+```{r, fig.height=4}
+input.l$gg_agr_tard_amb_endireh + 
+  ylim(0, 1.27)+ 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
-
+Pregunta: *Durante su infancia (hasta antes de cumplir 15 años), ¿dígame si vivió o le ocurrieron algunas de las situaciones que se mencionan en la tarjeta? ¿La obligaron a tener relaciones sexuales bajo amenazas o usando la fuerza?*
 
 
 ### Adolescencia Tardía
 
 
 
-```{r, fig.width=6}
-input.l$gg_agr_tard_endireh
+```{r, fig.width=5, fig.height=3.5}
+input.l$gg_agr_tard_amb_endireh + 
+  ylim(c(0, 1.5)) +
+  coord_flip()+ 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
 
@@ -102,28 +120,41 @@ Preguntas: *- Estudiante: Durante su vida de estudiante, ¿alguna persona de las
 
 ## Otras Referencias
 
+En esta sección se presentas indicadores alternativos 
+de contexto. La fuente de información es 
+la encuesta ENDIREH 2016. 
+
+
+**Edad de la madre al tener el primer hijo.**
+
+```{r, fig.height=3}
+input.l$gg_gpoedad_primerh_endireh + 
+  coord_flip() +
+  ylim(c(0, .7)) + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
+```
+
+**Edad y consentimiento de la mujer en la primera relación sexual por edad.** 
+
+```{r, fig.width=8, fig.height=5.5}
+input.l$gg_gpoedad_primerarel_endireh + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
+```
+
+
+**Edad de la mujer al momento de la primera unión o matrimonio.** 
 
 ```{r}
-input.l$gg_gpoedad_primerh_endireh
+input.l$gg_gpoedad_primeraun + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
-```{r, fig.width=7}
-input.l$gg_edad_primerh
+
+```{r, fig.width=7, fig.height=4}
+input.l$gg_box_edadparejaunion_endireh  + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
-```{r, fig.width=7}
-input.l$gg_gpoedad_primerarel_endireh
-```
 
-```{r}
-input.l$gg_gpoedad_primeraun
-```
 
-```{r, fig.width=7}
-input.l$gg_prop_edadparejaunion_endireh
-```
-
-```{r, fig.width=7}
-input.l$gg_box_edadparejaunion_endireh 
-```
-
+## Denuncias 
