@@ -84,10 +84,7 @@ incluye abuso sexual con intento de abuso sexual.
 
 ### Adolescencia Temprana
 
-
-
-
-```{r, fig.height=4}
+```{r, fig.height=4, fig.width=4.5}
 input.l$gg_agr_tard_amb_endireh + 
   ylim(0, 1.27)+ 
   labs(caption = "Fuente: INEGI ENDIREH 2016")
@@ -98,7 +95,13 @@ Pregunta: *Durante su infancia (hasta antes de cumplir 15 años), ¿dígame si v
 
 ### Adolescencia Tardía
 
-
+De acuerdo a ENDIREH 2016, 
+el `r input.l$tab_agr_tard_endireh$p`% 
+(`r format(input.l$tab_agr_tard_endireh$n, big.mark = ",")`) 
+de las mujeres entrevistadas de 15 a 19 años 
+(`r format(input.l$tab_agr_tard_endireh$base, big.mark = ",")`) han sido
+obligadas a tener relaciones sexuales alguna vez en su vida o su pareja
+ha intentado obligarlas en algun momento. 
 
 ```{r, fig.width=5, fig.height=3.5}
 input.l$gg_agr_tard_amb_endireh + 
@@ -155,6 +158,12 @@ input.l$gg_box_edadparejaunion_endireh  +
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
+**Razones de union/matrimonio actual.** 
+
+```{r, fig.width=9, fig.height=6}
+input.l$gg_razones_endireh + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
+```
 
 
-## Denuncias 
+

@@ -28,20 +28,22 @@ input.l$tab_gpoedad_primerh_endireh <- tab
 
 gg <- ggplot(tab, aes(x = edad_gpo_primerh, 
                 y = prop)) + 
-  geom_bar(stat = "identity", position = "stack") + 
-  geom_label(aes(label = format(nfac, big.mark = ","))) + 
+  geom_bar(stat = "identity", position = "stack",
+           fill = "red", alpha = .5, 
+           width = .6) + 
+  geom_label(aes(y = prop + .05, 
+                 label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Grupos de edad") + 
-  ggtitle("Distribución de edad al primer hijo.",
-          "Mujeres entre 15 y 19 años.")
+  ggtitle("Distribución de edad al primer hijo.")
 gg
 input.l$gg_gpoedad_primerh_endireh <- gg
 
   
 gg <- tab_eprimerh %>% 
   filter(edad_primerh < 99) %>% 
-  ggplot(aes(x = 1, y = edad_primerh)) + 
-  geom_boxplot() + 
+  ggplot(aes(x = "", y = edad_primerh)) + 
+  geom_boxplot(fill = "red", alpha = .5) + 
   scale_y_continuous(breaks = seq(0, 110, 5)) +
   ggtitle("Distribución de edad al primer hijo") + 
   coord_flip() + 
@@ -92,8 +94,11 @@ gg <-
   ggplot(tt, aes(x = edad_gpo_primerarel, 
                y = prop)) + 
   geom_bar(aes(fill = consentimiento),
-           stat = "identity", position = "dodge") + 
-  geom_label(aes(label = format(nfac, big.mark = ","))) + 
+           alpha = .5,
+           stat = "identity", position = "dodge", 
+           width = .8) + 
+  geom_label(aes(y = prop +.03, 
+                 label = format(nfac, big.mark = ","))) + 
   facet_wrap(~consentimiento) + 
   theme(legend.position = "none") +
   ylab("Proporción (%)") + 
@@ -124,7 +129,8 @@ tab
 
 gg <- ggplot(tab, aes(x = edad_gpo_conyug, 
                 y  = prop)) + 
-  geom_bar(stat = "identity", position = "dodge") + 
+  geom_bar(stat = "identity", position = "dodge",
+           fill = "red", alpha = .5) + 
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
   ggtitle("Distribución de edad de primera unión") + 
   ylab("Proporción (%)") + 
@@ -162,11 +168,22 @@ input.l$gg_prop_edadparejaunion_endireh <- gg
 gg <- tab_conyug_i %>% 
   filter(!is.na(edad_gpo_conyug)) %>% 
   ggplot(aes(x = edad_gpo_conyug, y = edad_pareja)) + 
-  geom_hline(yintercept = 18, color = "blue") +
-  geom_boxplot() + 
+  geom_hline(yintercept = 18, color = "gray40", 
+             linetype = 3, 
+             size = 1) +
+  geom_hline(yintercept = 18, color = "gray40", 
+             linetype = 1, 
+             size = .5) +
+  geom_boxplot(aes(fill = edad_gpo_conyug), 
+               alpha = .5) + 
+  annotate("text", label = "mayoría de edad", 
+           color = "gray40",
+           x = 0.5, y = 20, 
+           hjust =0) +
   scale_y_continuous(breaks = seq(0, 110, 5)) +
   xlab("Grupo de edad") + 
   ylab("Edad de la pareja") + 
+  theme(legend.position = "none") +
   ggtitle("Distribución de la edad de la pareja.",
           "Grupo de edad de la mujer en la primera union.") + 
   coord_flip()
@@ -174,5 +191,51 @@ gg
 input.l$gg_box_edadparejaunion_endireh <- gg
 
 
+# Razones de union actual ----
+tab_razon <- tab_sec_xii %>%
+  dplyr::select(ID_VIV:FAC_MUJ, P12_9, P12_10, P12_11) %>% 
+  mutate(edad_union = parse_number(P12_9),
+         edad_gpo_union = cut( edad_union,
+                                include.lowest = T,
+                                breaks = c(5, 9, 14, 19, 100)), 
+         edad_pareja = parse_number(P12_10), 
+         razones = factor(P12_11, 1:7, 
+                          c("emabarazo y obligaron", 
+                            "emabarazo y decision mutua", 
+                            "robaron en contra de voluntad", 
+                            "arreglo a cambio de dinero, etc", 
+                            "salir de casa", 
+                            "decisión mutua", 
+                            "otro")))
+tab_razon %>% data.frame() %>% head
+
+
+tab_razon %>% 
+  group_by(edad_gpo_union) %>% 
+  summarise(base = sum(FAC_MUJ))
+
+gg <- tab_razon %>% 
+  group_by(edad_gpo_union, razones) %>% 
+  summarise(nfac = sum(FAC_MUJ),
+            n = n()) %>% 
+  left_join(tab_razon %>% 
+              group_by(edad_gpo_union) %>% 
+              summarise(base = sum(FAC_MUJ)), 
+            by = "edad_gpo_union") %>% 
+  mutate(prop = 100*nfac/base) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = edad_gpo_union, y = prop)) + 
+  geom_bar(aes(fill = razones), 
+           stat = "identity", 
+           position = "stack", 
+           alpha = .7, 
+           width = .6)  + 
+  geom_label(aes(y = prop - .1 , 
+                 label = format(nfac, big.mark = ",")), 
+             alpha = .5) + 
+  facet_wrap(~razones, scales = "free_y", ncol = 4) + 
+  theme(legend.position = "none")
+gg
+input.l$gg_razones_endireh <- gg
 
 cache("input.l")
