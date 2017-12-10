@@ -43,14 +43,14 @@ levels(df.viosex$edad) <- c('0 a 4',
                             '60  y más','No identificado')
 
 edad.orden <- c('0 a 4','5 a 9',
-  '10 a 14','15 a 19','20 a 24','25 a 29',
-  '30 a 34','35 a 39','40 a 44','45 a 49',
-  '50 a 54','55 a 59',
-  '60  y más','No identificado')
+                '10 a 14','15 a 19','20 a 24','25 a 29',
+                '30 a 34','35 a 39','40 a 44','45 a 49',
+                '50 a 54','55 a 59',
+                '60  y más','No identificado')
 
 cods.viosex <- c('3010','3020','3030','3040','3050','3060','3070','3080')
 labs.viosex <- c('abuso sexual','acoso sexual','hostigamiento','violacion',
-  'violacion equiparada','estupro','incesto','otros')
+                 'violacion equiparada','estupro','incesto','otros')
 
 tab.viosex <- df.viosex %>% 
   mutate(desc_delito = factor(DELI_FC, levels = cods.viosex, labels = labs.viosex),
