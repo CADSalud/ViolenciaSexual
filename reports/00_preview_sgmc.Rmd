@@ -86,9 +86,9 @@ incluye abuso sexual con intento de abuso sexual.
 
 ### Adolescencia Temprana
 
-```{r, fig.height=4, fig.width=4.5}
-input.l$gg_agr_tard_amb_endireh + 
-  ylim(0, 1.27)+ 
+```{r, fig.height=4, fig.width=3}
+input.l$gg_agr_temp_endireh + 
+  # ylim(0, 1.27)+ 
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
