@@ -239,3 +239,83 @@ gg
 input.l$gg_razones_endireh <- gg
 
 cache("input.l")
+
+
+
+# Enadid
+
+tab_muj1$EDAD_1AG %>% summary()
+tab_muj1$edad_num %>% summary()
+tab_muj1$FAC_PER %>% sum() # 2014: 35,204,085 de 15 a 54 años
+
+tab_muj1 %>% 
+  group_by(edad_num, algunavez_emb) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(edad_num) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  ungroup %>% 
+  filter(algunavez_emb) %>%
+  ggplot(aes(x = edad_num, y = prop, 
+             group = algunavez_emb)) + 
+  # geom_point() + 
+  geom_line(size = 1, color = "blue") + 
+  scale_y_continuous(breaks = seq(0, 1, .05)) + 
+  scale_x_continuous(breaks = seq(15, 54, 2)) + 
+  ggtitle("Proporción de mujeres alguna vez embarazadas.") +
+  ylab("Proporción") + 
+  xlab("Edad de mujer") + 
+  labs(caption = "Fuente: ENADID 2014")
+  
+
+tab_muj1 %>% 
+  group_by(P5_3) %>% 
+  tally() %>% 
+  ungroup %>% 
+  mutate(prop = n/sum(n))
+
+tab_muj1 %>% 
+  # filter(P5_3 == 1) %>% 
+  group_by(EDAD_1AG, P5_3) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(EDAD_1AG) %>% 
+  mutate(prop = nfac/sum(nfac))
+
+tab_muj1 %>% 
+  group_by(P5_3, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(P5_3) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  filter(P5_3 == 1) %>% 
+  ggplot(aes(x = fct_reorder(P5_4_rec, prop),
+             y = prop)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip()
+
+tab_muj1 %>% 
+  filter(P5_3 == 1) %>% 
+  group_by(EDAD_1AG, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(EDAD_1AG) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  ungroup %>% 
+  ggplot(aes(x = EDAD_1AG,
+             y = prop, 
+             fill = fct_reorder(P5_4_rec, prop))) + 
+  geom_bar(stat = "identity")
+
+tab_muj1 %>% 
+  filter(P5_3 == 1) %>% 
+  group_by(EDAD_1AG, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(EDAD_1AG) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  ungroup %>% 
+  ggplot(aes(x = EDAD_1AG,
+             y = prop, 
+             fill = fct_reorder(P5_4_rec, prop))) + 
+  geom_bar(stat = "identity")
