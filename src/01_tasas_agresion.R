@@ -55,7 +55,7 @@ tab_union <- tab_sec_vi %>%
                         breaks = c(15, 19, 100)) )
 dim(tab_union)
 tab_union %>% data.frame() %>% head()
-
+cache("tab_union")
 
 
 
