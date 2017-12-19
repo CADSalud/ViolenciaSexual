@@ -248,6 +248,13 @@ tab_muj1$EDAD_1AG %>% summary()
 tab_muj1$edad_num %>% summary()
 tab_muj1$FAC_PER %>% sum() # 2014: 35,204,085 de 15 a 54 años
 
+# Embarazo alguna vez
+tab_muj1 %>% 
+  group_by(EDAD_1AG, P5_6) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  ungroup
+
 tab_muj1 %>% 
   group_by(edad_num, algunavez_emb) %>% 
   summarise(n = n(), 
@@ -268,6 +275,8 @@ tab_muj1 %>%
   labs(caption = "Fuente: ENADID 2014")
   
 
+
+# Abandono escolar y causas
 tab_muj1 %>% 
   group_by(P5_3) %>% 
   tally() %>% 
@@ -292,7 +301,52 @@ tab_muj1 %>%
   ggplot(aes(x = fct_reorder(P5_4_rec, prop),
              y = prop)) + 
   geom_bar(stat = "identity") + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Distribución de razones de abandono de escuela.", 
+          "Mujeres de 15 a 54 años") +
+  xlab(NULL) + 
+  ylab("Proporción") + 
+  labs(caption = "Fuente: ENADID 2014")
+
+tab_muj1 %>% 
+  filter(EDAD_1AG == "15 a 19") %>% 
+  group_by(P5_3, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(P5_3) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  filter(P5_3 == 1) %>% 
+  ggplot(aes(x = fct_reorder(P5_4_rec, prop),
+             y = prop)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  ggtitle("Distribución de razones de abandono de escuela.", 
+          "Mujeres de 15 a 19 años") +
+  xlab(NULL) + 
+  ylab("Proporción") + 
+  labs(caption = "Fuente: ENADID 2014")
+
+tab_muj1 %>% 
+  filter(P5_3 == 1) %>% 
+  group_by(EDAD_1AG, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(EDAD_1AG) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  ungroup %>% 
+  ggplot(aes(x = fct_reorder(P5_4_rec, prop),
+             y = prop, 
+             group = EDAD_1AG)) + 
+  geom_line() + 
+  geom_point() + 
+  facet_wrap(~EDAD_1AG, scales = "free", nrow = 1) + 
+  theme(axis.text.x = element_text(angle = 90)) + 
+  ggtitle("Distribución de razones de abandono de escuela.", 
+          "Grupos de edad quinquenales") +
+  xlab(NULL) + 
+  ylab("Proporción") + 
+  labs(caption = "Fuente: ENADID 2014") + 
+  theme(axis.text.x = element_text(hjust = 1))
 
 tab_muj1 %>% 
   filter(P5_3 == 1) %>% 
@@ -307,15 +361,20 @@ tab_muj1 %>%
              fill = fct_reorder(P5_4_rec, prop))) + 
   geom_bar(stat = "identity")
 
+
+# Aborto
+
 tab_muj1 %>% 
-  filter(P5_3 == 1) %>% 
-  group_by(EDAD_1AG, P5_4_rec) %>% 
+  filter(!is.na(P5_22)) %>% 
+  group_by(EDAD_1AG, P5_22) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_PER)) %>% 
   group_by(EDAD_1AG) %>% 
   mutate(prop = nfac/sum(nfac)) %>% 
-  ungroup %>% 
-  ggplot(aes(x = EDAD_1AG,
-             y = prop, 
-             fill = fct_reorder(P5_4_rec, prop))) + 
-  geom_bar(stat = "identity")
+  filter(P5_22 == 1) %>% 
+  ggplot(aes(x = EDAD_1AG, 
+             y = prop)) + 
+  geom_linerange(aes(ymin = 0, ymax = prop)) + 
+  geom_point() + 
+  ggtitle("Proporción de mujeres algún aborto.", 
+          "Mujeres alguna vez embarazadas")

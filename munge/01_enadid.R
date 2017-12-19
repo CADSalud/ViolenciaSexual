@@ -18,6 +18,7 @@ tab_muj1 <- read.dbf("data/enadid/base_datos_enadid14_dbf/TMMujer1.dbf") %>%
                              "45 a 49","50 a 54")),
          edad_num = parse_number(P5_2),
          algunavez_emb = (P5_6_AG != 4), 
+         P5_23 = parse_number(P5_23),
          P5_4_rec = factor(P5_4, 
                        c("00","01","02","03","04","05","06",
                          "07","08","09","10","11","12","13", "99"), 
