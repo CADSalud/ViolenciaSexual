@@ -7,6 +7,7 @@ load("cache/tab_sec_xii.RData")
 load("cache/input.l.RData") 
 
 
+
 # Edad del primer hijo
 tab_eprimerh <- tab_sec_xii %>% 
   mutate(edad_primerh = parse_number(P12_2),
@@ -67,16 +68,8 @@ tab_eprimerarel <- tab_sec_xii %>%
          edad_gpo_primerarel = cut( edad_primerarel,
                                  include.lowest = T,
                                  breaks = c(5, 9, 14, 19, 100)), 
-         consentimiento = factor(P12_7, 1:2, c("sí", "no")))
-
-tt.0 <- tab_eprimerarel %>% 
-  group_by(edad_gpo_primerarel) %>% 
-  summarise(n = n(), 
-            nfac = sum(FAC_MUJ)) %>% 
-  filter(!is.na(edad_gpo_primerarel)) %>% 
-  ungroup %>% 
-  mutate(prop = nfac/sum(nfac), 
-         consentimiento = "total")
+         consentimiento = factor(P12_7, c(1:2, 9), c("sí", "no", "no especificado")))
+table(tab_eprimerarel$consentimiento, tab_eprimerarel$P12_7 )
 
 tt <- tab_eprimerarel %>% 
   group_by(consentimiento, 
@@ -84,25 +77,22 @@ tt <- tab_eprimerarel %>%
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
   filter(!is.na(edad_gpo_primerarel)) %>% 
-  group_by(consentimiento) %>% 
+  group_by(edad_gpo_primerarel) %>% 
   mutate(prop = nfac/sum(nfac)) %>% 
-  ungroup %>% 
-  bind_rows(tt.0)
+  ungroup 
 tt
+input.l$tab_gpoedad_primerarel_endireh <- tt
 
 gg <-
   ggplot(tt, aes(x = edad_gpo_primerarel, 
                y = prop)) + 
   geom_bar(aes(fill = consentimiento),
            alpha = .5,
-           stat = "identity", position = "dodge", 
+           stat = "identity", position = "stack", 
            width = .8) + 
-  geom_label(aes(y = prop +.03, 
-                 label = format(nfac, big.mark = ","))) + 
-  facet_wrap(~consentimiento) + 
-  theme(legend.position = "none") +
+  theme(legend.position = "right") +
   ylab("Proporción (%)") + 
-  xlab("Grupo de edad") + 
+  xlab("Edad de primera relación") + 
   ggtitle("Distribución de edad de primera relación", 
           "Consentimiento de la relación")
 gg
@@ -126,6 +116,7 @@ tab <- tab_conyug_i %>%
   ungroup %>% 
   mutate(prop = nfac/sum(nfac))
 tab
+input.l$tab_gpoedad_primeraun <- tab
 
 gg <- ggplot(tab, aes(x = edad_gpo_conyug, 
                 y  = prop)) + 
@@ -134,7 +125,7 @@ gg <- ggplot(tab, aes(x = edad_gpo_conyug,
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
   ggtitle("Distribución de edad de primera unión") + 
   ylab("Proporción (%)") + 
-  xlab("Grupo de edad")
+  xlab("Edad de la primera unión")
 gg
 input.l$gg_gpoedad_primeraun <- gg
 
@@ -147,6 +138,8 @@ tt <- tab_conyug_i %>%
   mutate(prop = 100*nfac/sum(nfac)) %>% 
   ungroup
 tt
+
+input.l$tab_prop_edadparejaunion_endireh <- tt
 
 gg <- tt %>% 
   filter(edad_pareja < 75) %>% 
@@ -200,8 +193,8 @@ tab_razon <- tab_sec_xii %>%
                                 breaks = c(5, 9, 14, 19, 100)), 
          edad_pareja = parse_number(P12_10), 
          razones = factor(P12_11, 1:7, 
-                          c("emabarazo y obligaron", 
-                            "emabarazo y decision mutua", 
+                          c("embarazo y obligaron", 
+                            "embarazo y decision mutua", 
                             "robaron en contra de voluntad", 
                             "arreglo a cambio de dinero, etc", 
                             "salir de casa", 
@@ -214,7 +207,8 @@ tab_razon %>%
   group_by(edad_gpo_union) %>% 
   summarise(base = sum(FAC_MUJ))
 
-gg <- tab_razon %>% 
+
+tab <- tab_razon %>% 
   group_by(edad_gpo_union, razones) %>% 
   summarise(nfac = sum(FAC_MUJ),
             n = n()) %>% 
@@ -223,18 +217,18 @@ gg <- tab_razon %>%
               summarise(base = sum(FAC_MUJ)), 
             by = "edad_gpo_union") %>% 
   mutate(prop = 100*nfac/base) %>% 
-  na.omit() %>% 
+  ungroup() %>% 
+  na.omit()
+tab
+input.l$tab_razones_endireh <- tab
+
+gg <- tab %>% 
   ggplot(aes(x = edad_gpo_union, y = prop)) + 
   geom_bar(aes(fill = razones), 
            stat = "identity", 
            position = "stack", 
            alpha = .7, 
-           width = .6)  + 
-  geom_label(aes(y = prop - .1 , 
-                 label = format(nfac, big.mark = ",")), 
-             alpha = .5) + 
-  facet_wrap(~razones, scales = "free_y", ncol = 4) + 
-  theme(legend.position = "none")
+           width = .6)   
 gg
 input.l$gg_razones_endireh <- gg
 
@@ -378,3 +372,21 @@ tab_muj1 %>%
   geom_point() + 
   ggtitle("Proporción de mujeres algún aborto.", 
           "Mujeres alguna vez embarazadas")
+
+
+# Edad de casadas endireh 5-19
+tab_sec_xii$P2_16 %>% table()
+
+tab <- tab_sec_xii %>% 
+  mutate(edo_civil = factor(P2_16, c(1:6, 9), 
+                            c("union libre", "separada", "divorciada",
+                              "viuda", "casada", "soltera",
+                              "no especificado")) ) %>% 
+  filter(edad_num <= 19) %>% 
+  group_by(edo_civil) %>% 
+  summarise(nfac = sum(FAC_MUJ), 
+            n = n()) %>% 
+  ungroup() %>% 
+  mutate(prop = 100*nfac/sum(nfac))
+tab
+input.l$tab_edocivi_endireh <- tab
