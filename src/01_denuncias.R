@@ -2,29 +2,11 @@
 library(ProjectTemplate)
 load.project()
 
-library(foreign)
-
+load("cache/dat.denuncias.RData")
 load("cache/input.l.RData")
 
 
-dat.vic <- read.dbf("data/censo_trib_superior/AP_iniciadas_CI_abiertas_cnpje2016_dbf/Bases_datos/VICTIMAS.DBF") %>% 
-  as.tibble() %>% 
-  left_join(read.dbf("data/censo_trib_superior/AP_iniciadas_CI_abiertas_cnpje2016_dbf/Catalogos/DELI_FC.DBF"), 
-            by = "DELI_FC") %>% 
-  left_join(read.dbf("data/censo_trib_superior/AP_iniciadas_CI_abiertas_cnpje2016_dbf/Catalogos/RAN_EDAD.DBF"),
-            by = "RAN_EDAD") %>% 
-  mutate(tipo_del = parse_number(str_sub(DELI_FC, 1, 2)),
-         desc_delito = factor(str_trim(DESC_TIP)), 
-         edad = factor(str_trim( str_replace_all(DESCRIP, "a\xa4os", ""))),
-         sexo_rec = factor(SEXO, levels = c(1,2), labels = c("Hom", "Muj")))
-dat.vic %>% data.frame %>% head
-dat.vic %>% dim
-dat.vic %>% names
-
-dat.vic$tipo_del %>% summary
-dat.vic$desc_delito %>% unique()
-dat.vic$edad %>% unique()
-
+# códigos
 cods.viosex <- c('1020', '1030', '2020',  '5010', 
                  '3010', '3020', '3030', '3040', '3050', '3060', '3070', '3080',
                  '6011', '6012', '6013', '6014', '6015', '6021', '6030')
@@ -38,7 +20,7 @@ labs.viosex <- c('feminicidio', 'aborto', 'tráfico de menores', 'violencia fami
 
 
 # Violencia sexual ----
-df.viosex <- dat.vic %>% 
+df.viosex <- dat.denuncias %>% 
   filter(DELI_FC %in% cods.viosex)
 df.viosex
 
@@ -68,11 +50,21 @@ tab.viosex <- df.viosex %>%
   mutate(desc_delito = factor(DELI_FC, levels = cods.viosex, labels = labs.viosex),
          edad_orden = factor(edad, levels = edad.orden)) 
 
-gg <- tab.viosex %>% 
+tab <- tab.viosex %>% 
   filter(sexo_rec == "Muj") %>% 
   group_by(edad_orden, desc_delito) %>% 
   summarise(n_tt = sum(TT_VICT, na.rm = T)) %>% 
   ungroup() %>% 
+  group_by(edad_orden) %>% 
+  mutate(prop_edad = 100*n_tt/sum(n_tt)) %>% 
+  group_by(desc_delito) %>% 
+  mutate(prop_delito = 100*n_tt/sum(n_tt)) %>% 
+  ungroup()
+tab
+
+input.l$tab_avp_vic <- tab
+
+gg <- tab %>% 
   ggplot(aes(x = edad_orden, 
              y = n_tt)) + 
   geom_bar(stat = "identity", 
