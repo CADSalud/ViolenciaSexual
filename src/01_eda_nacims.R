@@ -1,7 +1,7 @@
 
 
 library(ProjectTemplate)
-reload.project()
+# reload.project()
 
 library(bigrquery)
 
@@ -36,6 +36,8 @@ df_nacims
 str(df_nacims)
 
 df_nacims$EDAD_MADR %>% summary()
+
+cache("df_nacims")
 
 tab <- df_nacims %>% 
   filter(EDAD_MADR < 50) %>%
@@ -87,13 +89,18 @@ col.gradient.cut <- c(colorRampPalette(c("#9999ff", "yellow", "#E67400"))(11), "
 
 (df_nacims$EDAD_PADR == 99) %>% sum
 (df_nacims$EDAD_PADR ) %>% summary()
-df_nacims %>% 
+
+tab <- df_nacims %>% 
   # filter(EDAD_MADR < 50) %>% 
   group_by(edad_gpo_madre, edad_gpo_padre) %>% 
   summarise(n_acum = sum(count)) %>% 
   group_by(edad_gpo_madre) %>% 
   mutate( prop = 100*n_acum/sum(n_acum)) %>% 
-  ungroup %>% 
+  ungroup
+tab
+input.l$tab_distquinq_nacims <- tab
+
+gg <- tab %>% 
   ggplot(aes(x = edad_gpo_madre, 
              y = prop, 
              fill= edad_gpo_padre)) + 
@@ -107,7 +114,10 @@ df_nacims %>%
           "Número de registros 2010 a 2015") +
   theme_minimal() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank(), 
+        axis.text.x = element_text(angle = 90))
+gg
+input.l$gg_distquinq_nacims <- gg
 
 tab <- df_nacims %>% 
   filter(EDAD_MADR < 50) %>%
@@ -117,14 +127,18 @@ tab <- df_nacims %>%
   summarise(n_acum = sum(count)) %>% 
   group_by(EDAD_MADR) %>% 
   mutate( prop = 100*n_acum/sum(n_acum)) %>% 
-  ungroup 
+  ungroup%>% 
+  mutate(EDAD_MADR = fct_recode(factor(EDAD_MADR), 
+                                `10 a 12` = "12") )
+tab
+input.l$tab_distanual_nacims <- tab
 
-tab %>% 
+gg <- tab %>% 
   ggplot(aes(x = EDAD_MADR, 
              y = prop, 
              fill= edad_gpo_padre)) + 
   geom_bar(stat = "identity") + 
-  # geom_hline(yintercept = 50, color = "gray50", linetype = 2) +
+  # scale_x_continuous(breaks = seq(12, 50, 2)) + 
   scale_fill_manual(values = col.gradient.cut) + 
   ylab("Porcentaje (%)") + 
   xlab("Edad de la madre") +
@@ -133,19 +147,23 @@ tab %>%
           "Número de registros 2010 a 2015") +
   theme_minimal() + 
   theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())
+        panel.grid.minor = element_blank(), 
+        axis.text.x = element_text(angle = 90))
+gg
+input.l$gg_distanual_nacims <- gg
 
 
-df_nacims %>% 
-  ggplot(aes(x = EDAD_MADR)) + 
-  geom_histogram()
 
-df_nacims %>% 
+gg <- df_nacims %>% 
   group_by(EDAD_MADR) %>% 
   summarise(base = sum(count)) %>% 
   ungroup %>% 
   ggplot(aes(x = EDAD_MADR, y = base)) + 
   geom_bar(stat = "identity") + 
-  scale_x_continuous(breaks = seq(0, 100, by = 5)) + 
+  # scale_x_continuous(breaks = seq(0, 100, by = 5)) + 
   xlim(10,100)
- 
+gg
+input.l$gg_distedadmdr_nacims <- gg
+
+
+cache("input.l")
