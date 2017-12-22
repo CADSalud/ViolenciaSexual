@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = F, fig.align = "center",
 library(tidyverse)
 library(stringr)
 theme_set(theme_bw())
+col.gradient.cut <- c(colorRampPalette(c("#9999ff", "yellow", "#E67400"))(11), "gray50")
 load("../cache/input.l.RData")
 ```
 
@@ -139,12 +140,42 @@ input.l$gg_gpoedad_primerh_endireh +
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
+
+```{r}
+input.l$tab_gpoedad_primerh_endireh %>% 
+  mutate(prop = 100*prop) %>% 
+  rename(`Grupo de edad de la mujer` = edad_gpo_primerh, 
+         `Frecuencia muestral` =  n, 
+         `Frecuencia ponderada` = nfac, 
+         `% ponderado` = prop) %>% 
+  knitr::kable(digits = 2, align = "rccc", 
+               caption = "Distribución de edad de mujeres al primer hijo. Fuente: INEGI ENDIREH 2016")
+```
+
+
+
 **Edad y consentimiento de la mujer en la primera relación sexual por edad.** 
 
-```{r, fig.width=8, fig.height=5.5}
+```{r, fig.width=6, fig.height=4}
 input.l$gg_gpoedad_primerarel_endireh + 
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
+
+
+```{r}
+input.l$tab_gpoedad_primerarel_endireh %>% 
+  mutate(prop = 100*prop) %>% 
+  rename( Consentimiento = consentimiento,
+          `Edad de primera relación` = edad_gpo_primerarel, 
+         `Frecuencia muestral` =  n, 
+         `Frecuencia ponderada` = nfac, 
+         `% ponderado` = prop) %>% 
+  knitr::kable(digits = 2, align = "rccc", 
+               caption = "Distribución de edad de mujeres al primer hijo. Fuente: INEGI ENDIREH 2016")
+```
+
+
+*Preguntas: - P12_6: ¿Cuántos años tenía usted cuando tuvo su primera relación sexual? - P12_7: ¿Esta primera experiencia fue con su consentimiento (usted así lo quiso)?*
 
 
 **Edad de la mujer al momento de la primera unión o matrimonio.** 
@@ -154,6 +185,16 @@ input.l$gg_gpoedad_primeraun +
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
+```{r}
+input.l$tab_gpoedad_primeraun %>% 
+  mutate(prop = 100*prop) %>% 
+  rename(`Edad de primera unión` = edad_gpo_conyug, 
+         `Frecuencia muestral` =  n, 
+         `Frecuencia ponderada` = nfac, 
+         `% ponderado` = prop) %>% 
+  knitr::kable(digits = 2, align = "rccc", 
+               caption = "Distribución de edad de mujeres en la primera unión. Fuente: INEGI ENDIREH 2016")
+```
 
 ```{r, fig.width=7, fig.height=4}
 input.l$gg_box_edadparejaunion_endireh  + 
@@ -162,11 +203,24 @@ input.l$gg_box_edadparejaunion_endireh  +
 
 **Razones de union/matrimonio actual.** 
 
-```{r, fig.width=9, fig.height=6}
+```{r, fig.width=7, fig.height=4}
 input.l$gg_razones_endireh + 
+  xlab("Edad de primera unión") + 
+  ylab("Proporción") + 
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
+```{r}
+input.l$tab_razones_endireh %>% 
+  dplyr::select(-base) %>% 
+  rename(`Edad de primera unión` = edad_gpo_union, 
+         `Razones de unión` = razones, 
+         `Frecuencia muestral` =  n, 
+         `Frecuencia ponderada` = nfac,
+         `% ponderado` = prop) %>% 
+  knitr::kable(digits = 2, align = "rcccc", 
+               caption = "Distribución de razones de unión por edad de mujeres en la primera unión. Fuente: INEGI ENDIREH 2016")
+```
 
 
 ## Denuncias
@@ -176,7 +230,52 @@ input.l$gg_avp_vic +
   labs(caption = "Fuente: Censo Nacional de Procuración de Justicia Estatal 2016")
 ```
 
+
+```{r}
+input.l$tab_avp_vic %>% 
+  rename(`Edad de víctima` = edad_orden, 
+         `Delito` = desc_delito, 
+         `Frecuencia` =  n_tt, 
+         `% por edad` = prop_edad, 
+         `% por delito` = prop_delito) %>% 
+  knitr::kable(digits = 2, align = "rrccc", 
+               caption = "Número de víctimas por edad y delito. Fuente: Censo Nacional de Procuración de Justicia Estatal 2016")
+```
+
+
 ## Natalidad
+
+
+```{r, fig.width=8, fig.height=6}
+input.l$gg_distanual_nacims +
+  labs(caption = "Fuente: INEGI Estadística de Nacimientos 2010 a 2016")
+```
+
+```{r}
+input.l$tab_distanual_nacims %>% 
+  rename(`Edad de madre` = EDAD_MADR, 
+         `Edad de padre` = edad_gpo_padre, 
+         `Frecuencia` =  n_acum, 
+         `% por edad madre` = prop) %>% 
+  knitr::kable(digits = 2, align = "rrcc", 
+               caption = "Distribución de edad del padre por año de edad de la madre. Fuente: INEGI Estadística de Nacimientos 2010 a 2016")
+```
+
+```{r, fig.width=8, fig.height=6}
+input.l$gg_distquinq_nacims +
+  labs(caption = "Fuente: INEGI Estadística de Nacimientos 2010 a 2016")
+```
+
+
+```{r}
+input.l$tab_distquinq_nacims %>% 
+  rename(`Edad de madre` = edad_gpo_madre, 
+         `Edad de padre` = edad_gpo_padre, 
+         `Frecuencia` =  n_acum, 
+         `% por edad madre` = prop) %>% 
+  knitr::kable(digits = 2, align = "rrcc", 
+               caption = "Distribución de edad del padre por quinquenio de edad de la madre. Fuente: INEGI Estadística de Nacimientos 2010 a 2016")
+```
 
 ```{r, fig.width=7, fig.height=3.5}
 input.l$gg_nacims_serieedad + 
@@ -186,5 +285,18 @@ input.l$gg_nacims_serieedad +
 
 ```{r, fig.width=10, fig.height=3}
 input.l$gg_nacims_serie + 
-  labs(caption = "Fuente: INEGI Nacimientos 2010 a 2016")
+  labs(caption = "Fuente: INEGI Estadística de Nacimientos 2010 a 2016")
 ```
+
+
+## Estado Civil
+
+```{r}
+input.l$tab_edocivi_endireh %>% 
+  rename(`Estado civil` = edo_civil, 
+         `Frec ponderada` = nfac, `Frec muestral` = n, `% pond` = prop) %>% 
+  knitr::kable(digits = 2, align = "rccc", 
+               caption = "Mujeres de 15 a 19 años. Fuente: ENDIREH 2016.")
+```
+
+
