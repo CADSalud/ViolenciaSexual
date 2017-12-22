@@ -87,7 +87,18 @@ incluye abuso sexual con intento de abuso sexual.
 
 ### Adolescencia Temprana
 
-```{r, fig.height=4, fig.width=3}
+```{r}
+input.l$tab_agr_temp_endireh %>% 
+  dplyr::select(-base) %>% 
+  rename(`Agresión antes de 15 años` = P11_12_5, 
+         `Frec ponderada` =  nfac, 
+         `Frec muestra` =  n, 
+         `% ponderado` = prop) %>% 
+  knitr::kable(digits = 2, align = "rccc", 
+               caption = "Proporción de mujeres agredidas antes de los 15 años. Fuente: INEGI ENDIREH 2016")
+```
+
+```{r, fig.height=4, fig.width=3.5}
 input.l$gg_agr_temp_endireh + 
   # ylim(0, 1.27)+ 
   labs(caption = "Fuente: INEGI ENDIREH 2016")

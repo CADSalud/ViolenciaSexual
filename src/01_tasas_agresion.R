@@ -97,7 +97,8 @@ gg <- tab %>%
 gg 
 input.l$gg_agr_tard_amb_endireh <- gg
 
-gg <- tab_union %>%
+
+tab <- tab_union %>%
   mutate(P11_12_5 = factor(P11_12_5, 
                            c(1,2,8), 
                            c("Sí", "No", "No recuerda"))) %>% 
@@ -107,7 +108,11 @@ gg <- tab_union %>%
   ungroup %>% 
   mutate(prop = 100*nfac/sum(nfac), 
          base = sum(nfac)) %>% 
-  ungroup %>% 
+  ungroup 
+tab
+input.l$tab_agr_temp_endireh <- tab
+
+gg <- tab %>% 
   filter(P11_12_5 != "No") %>% 
   ggplot(aes(x = P11_12_5, 
              y = prop) )+ 
