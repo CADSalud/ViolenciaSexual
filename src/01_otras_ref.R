@@ -105,8 +105,10 @@ tab_conyug_i <- tab_sec_xii %>%
          edad_gpo_conyug = cut( edad_conyug,
                                 include.lowest = T,
                                 breaks = c(5, 9, 14, 19, 100)), 
-         edad_pareja = parse_number(P12_15AB))
-tab_conyug_i
+         edad_pareja = parse_number(P12_15AB), 
+         edad_gpo_mujer = cut(edad_num, include.lowest = T, 
+                          breaks = c(15, 19, 100)))
+tab_conyug_i %>% data.frame() %>% head
 
 tab <- tab_conyug_i %>% 
   group_by(edad_gpo_conyug) %>% 
@@ -182,6 +184,33 @@ gg <- tab_conyug_i %>%
   coord_flip()
 gg
 input.l$gg_box_edadparejaunion_endireh <- gg
+
+
+gg <- tab_conyug_i %>% 
+  filter(!is.na(edad_gpo_conyug)) %>% 
+  ggplot(aes(x = edad_gpo_conyug, y = edad_pareja)) + 
+  geom_hline(yintercept = 18, color = "gray40", 
+             linetype = 3, 
+             size = 1) +
+  geom_hline(yintercept = 18, color = "gray40", 
+             linetype = 1, 
+             size = .5) +
+  geom_boxplot(aes(fill = edad_gpo_conyug), 
+               alpha = .5) + 
+  annotate("text", label = "mayoría de edad", 
+           color = "gray40",
+           x = 0.5, y = 20, 
+           hjust =0) +
+  scale_y_continuous(breaks = seq(0, 110, 5)) +
+  xlab("Grupo de edad") + 
+  ylab("Edad de la pareja") + 
+  theme(legend.position = "none") +
+  ggtitle("Distribución de la edad de la pareja por\nedad actual de la mujer.",
+          "Grupo de edad de la mujer en la primera union.") +  
+  facet_wrap(~edad_gpo_mujer) +
+  coord_flip()
+gg
+input.l$gg_box_edadparejaunion_gpomuj_endireh <- gg
 
 
 # Razones de union actual ----

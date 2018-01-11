@@ -78,6 +78,19 @@ gg <- tab %>%
 gg
 input.l$gg_avp_vic <- gg
 
+
+
+tab <- tab.viosex %>% 
+  group_by(sexo_rec, edad_orden, desc_delito) %>% 
+  summarise(n_tt = sum(TT_VICT, na.rm = T)) %>% 
+  ungroup() %>% 
+  group_by(sexo_rec, edad_orden) %>%
+  mutate(prop_edad = 100*n_tt/sum(n_tt)) %>%
+  group_by(desc_delito) %>%
+  mutate(prop_delito = 100*n_tt/sum(n_tt)) %>%
+  ungroup() 
+tab
+
+input.l$tab_avp_sexo_vic <- tab
+
 cache("input.l")
-
-

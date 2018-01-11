@@ -212,6 +212,14 @@ input.l$gg_box_edadparejaunion_endireh  +
   labs(caption = "Fuente: INEGI ENDIREH 2016")
 ```
 
+
+```{r, fig.width=10, fig.height=4}
+input.l$gg_box_edadparejaunion_gpomuj_endireh + 
+  labs(caption = "Fuente: INEGI ENDIREH 2016")
+```
+
+
+
 **Razones de union/matrimonio actual.** 
 
 ```{r, fig.width=7, fig.height=4}
@@ -250,7 +258,22 @@ input.l$tab_avp_vic %>%
          `% por edad` = prop_edad, 
          `% por delito` = prop_delito) %>% 
   knitr::kable(digits = 2, align = "rrccc", 
-               caption = "Número de víctimas por edad y delito. Fuente: Censo Nacional de Procuración de Justicia Estatal 2016")
+               caption = "Número de víctimas mujeres por edad y delito. Fuente: Censo Nacional de Procuración de Justicia Estatal 2016")
+```
+
+
+```{r}
+input.l$tab_avp_sexo_vic %>% 
+  filter(!is.na(sexo_rec)) %>% 
+  arrange(desc(sexo_rec)) %>% 
+  rename(`Edad de víctima` = edad_orden, 
+         `Sexo de víctima` = sexo_rec, 
+         `Delito` = desc_delito, 
+         `Frecuencia por sexo` =  n_tt, 
+         `% por edad` = prop_edad, 
+         `% por delito` = prop_delito) %>% 
+  knitr::kable(digits = 2, align = "rrccc", 
+               caption = "Número de víctimas por sexo, edad y delito. Fuente: Censo Nacional de Procuración de Justicia Estatal 2016")
 ```
 
 
