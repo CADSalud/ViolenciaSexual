@@ -37,6 +37,7 @@ tab_muj1 <- read.dbf("data/enadid/base_datos_enadid14_dbf/TMMujer1.dbf") %>%
                          "Otro motivo",
                          "Nunca ha ido a la escuela", "No especificado") )) 
 tab_muj1
+cache('tab_muj1')
 
 
 
