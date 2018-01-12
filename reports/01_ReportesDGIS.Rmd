@@ -1,0 +1,84 @@
+---
+title: "Cubos Dinamicos DGIS"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+
+library(ProjectTemplate)
+library(tidyverse)
+library(knitr)
+
+load("../cache/Cubos.RData")
+
+Meses <- c("Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic")
+
+Aux <- Cubos %>% gather("Mes", "Conteo",Enero:Diciembre)%>%
+  mutate(Mes=factor(Mes,levels=unique(Mes) ),
+         Mes=factor(Mes,labels=Meses)) %>% 
+  spread(Variable,Conteo) %>%
+  mutate(Entidad=factor(Entidad, sort(levels(Entidad)) ) )%>%
+  group_by(Entidad) 
+names(Aux) <- make.names(names(Aux) )
+
+```
+
+La siguiente información fue tomada de los Cubos Dinámicos del DGIS de su apartado de servicios otorgados. El promedio mensual de primeras consultas por embarazo a nivel nacional por menores de 15 años es de `r round(mean(Aux$Primera.vez.menor.15),2)`, mientras que de adolescentes entre 15 y 19 años es de `r round(mean(Aux$Primera.vez.menor.19),2)`. El promedio de primeras consultas por embarazo a nivel nacional por personas entre 15 y 19 años. A continuación se presenta el número de consultas registradas por embarazo adolescente a nivel nacional durante el 2016. 
+
+```{r, echo=FALSE}
+
+for(x in names(Aux)[3:4]){
+  gg <- Aux %>% 
+    ggplot(aes(x=Mes,fill=Mes,color=Mes)) +
+    geom_col(aes_string(y=x)) +
+    theme_bw() +
+    ylab("")+
+    ggtitle(x)+
+    guides(fill=F,color=F)
+  print(gg)
+}
+
+```
+
+
+De las gráficas anteriores cabe notar dos comportamientos interesantes: las primeras consultas son mucho menores en diciembre para ambos grupos (difícil de explicar) y aumentaron considerablemente en junio para menores de 15 años (vacaciones de verano). Si separamos las graficas anteriores por entidad, y usando una escala logarítmica se pueden apreciar las siguientes entidades:
+
+```{r, echo=FALSE}
+for(x in names(Aux)[3:4]){
+  gg <- Aux[1:192,] %>% 
+    ggplot(aes(x=Mes,group=Entidad,color=Entidad)) +
+    geom_line(aes_string(y=x)) +
+    geom_point(aes_string(y=x)) +
+    theme_bw() +
+    scale_y_log10()+
+    ylab("")+
+    ggtitle(x)
+  print(gg)
+  
+  gg <- Aux[193:384,] %>% 
+    ggplot(aes(x=Mes,group=Entidad,color=Entidad)) +
+    geom_line(aes_string(y=x)) +
+    geom_point(aes_string(y=x)) +
+    theme_bw() +
+    scale_y_log10()+
+    ylab("")+
+    ggtitle(x)
+  print(gg)
+}
+
+```
+
+Cabe notar que a primera vista el comportamiento de las tendencias es similar en la mayoría de los estados, solo algunos muestran caídas o picos pronunciados.
+
+A continuación se presenta una tabla con un resumen de los datos.
+
+```{r, echo=FALSE,results='asis'}
+
+Aux %>% summarise_if(is.integer,mean) %>%
+  mutate(Visitas_promedio_15 = Subsecuente.menor.15/Primera.vez.menor.15 +1,
+         Visitas_promedio_19 = Subsecuente.menor.19/Primera.vez.menor.19 +1) %>%
+  mutate_if(is.numeric,round,2) %>% kable
+
+
+```
+
