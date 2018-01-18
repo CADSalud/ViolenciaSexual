@@ -265,8 +265,8 @@ cache("input.l")
 
 
 
-# Enadid
-
+# Enadid ----
+load("cache/tab_muj1.RData")
 tab_muj1$EDAD_1AG %>% summary()
 tab_muj1$edad_num %>% summary()
 tab_muj1$FAC_PER %>% sum() # 2014: 35,204,085 de 15 a 54 años
@@ -331,7 +331,7 @@ tab_muj1 %>%
   ylab("Proporción") + 
   labs(caption = "Fuente: ENADID 2014")
 
-tab_muj1 %>% 
+gg <- tab_muj1 %>% 
   filter(EDAD_1AG == "15 a 19") %>% 
   group_by(P5_3, P5_4_rec) %>% 
   summarise(n = n(), 
@@ -348,6 +348,8 @@ tab_muj1 %>%
   xlab(NULL) + 
   ylab("Proporción") + 
   labs(caption = "Fuente: ENADID 2014")
+gg
+input.l$gg_aband_enadid <- gg
 
 tab_muj1 %>% 
   filter(P5_3 == 1) %>% 
