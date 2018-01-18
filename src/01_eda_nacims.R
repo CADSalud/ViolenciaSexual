@@ -11,22 +11,22 @@ project <- "acoustic-field-186719" # put your project ID here
 # Query de tablas ----
 df_nacims <- lapply(2010:2016, function(year.nom){
   print(year.nom)
-  sql <- paste0("SELECT  COUNT(filenom), ANO_REG, EDAD_MADR", 
-                ", EDAD_PADR FROM [acoustic-field-186719:nacimientos.nacim", 
+  sql <- paste0("SELECT  COUNT(filenom), ANO_REG, EDAD_MADN", 
+                ", EDAD_PADN FROM [acoustic-field-186719:nacimientos.nacim", 
                 year.nom,
-                "] group by ANO_REG, EDAD_MADR, EDAD_PADR")
+                "] group by ANO_REG, EDAD_MADN, EDAD_PADN")
   tt <- query_exec(sql, project = project)
   }) %>% 
   bind_rows() %>% 
   as.tibble() %>% 
   rename(count = f0_) %>% 
-  mutate(EDAD_MADR = ifelse(EDAD_MADR == 99, NA, EDAD_MADR),
-         EDAD_PADR = ifelse(EDAD_PADR == 99, NA, EDAD_PADR),
-         edad_gpo_madre = cut(ifelse(EDAD_MADR == 99, NA, EDAD_MADR), 
+  mutate(EDAD_MADN = ifelse(EDAD_MADN == 99, NA, EDAD_MADN),
+         EDAD_PADN = ifelse(EDAD_PADN == 99, NA, EDAD_PADN),
+         edad_gpo_madre = cut(ifelse(EDAD_MADN == 99, NA, EDAD_MADN), 
                               right = F,
                               breaks = seq(10, 100, by = 5), 
                               include.lowest = T),
-         edad_gpo_padre = cut(ifelse(EDAD_PADR == 99, NA, EDAD_PADR), 
+         edad_gpo_padre = cut(ifelse(EDAD_PADN == 99, NA, EDAD_PADN), 
                               right = F,
                               breaks = seq(12, 80, by = 6), 
                               include.lowest = T), 
@@ -35,13 +35,13 @@ df_nacims <- lapply(2010:2016, function(year.nom){
 df_nacims
 str(df_nacims)
 
-df_nacims$EDAD_MADR %>% summary()
+df_nacims$EDAD_MADN %>% summary()
 
 cache("df_nacims")
 
 tab <- df_nacims %>% 
-  filter(EDAD_MADR < 50) %>%
-  mutate(edad_gpo = cut(EDAD_MADR, 
+  filter(EDAD_MADN < 50) %>%
+  mutate(edad_gpo = cut(EDAD_MADN, 
                         right = F,
                         breaks = seq(10, 100, by = 5), 
                         include.lowest = T)) %>% 
@@ -87,11 +87,11 @@ cache("input.l")
 # grafica de edad
 col.gradient.cut <- c(colorRampPalette(c("#9999ff", "yellow", "#E67400"))(11), "gray50")
 
-(df_nacims$EDAD_PADR == 99) %>% sum
-(df_nacims$EDAD_PADR ) %>% summary()
+(df_nacims$EDAD_PADN == 99) %>% sum
+(df_nacims$EDAD_PADN ) %>% summary()
 
 tab <- df_nacims %>% 
-  # filter(EDAD_MADR < 50) %>% 
+  # filter(EDAD_MADN < 50) %>% 
   group_by(edad_gpo_madre, edad_gpo_padre) %>% 
   summarise(n_acum = sum(count)) %>% 
   group_by(edad_gpo_madre) %>% 
@@ -120,21 +120,21 @@ gg
 input.l$gg_distquinq_nacims <- gg
 
 tab <- df_nacims %>% 
-  filter(EDAD_MADR < 50) %>%
-  mutate(EDAD_MADR = ifelse(EDAD_MADR %in% c(10,11,12), 12, EDAD_MADR)) %>% 
-  filter(!is.na(EDAD_MADR)) %>%
-  group_by(EDAD_MADR, edad_gpo_padre) %>% 
+  filter(EDAD_MADN < 50) %>%
+  mutate(EDAD_MADN = ifelse(EDAD_MADN %in% c(10,11,12), 12, EDAD_MADN)) %>% 
+  filter(!is.na(EDAD_MADN)) %>%
+  group_by(EDAD_MADN, edad_gpo_padre) %>% 
   summarise(n_acum = sum(count)) %>% 
-  group_by(EDAD_MADR) %>% 
+  group_by(EDAD_MADN) %>% 
   mutate( prop = 100*n_acum/sum(n_acum)) %>% 
   ungroup%>% 
-  mutate(EDAD_MADR = fct_recode(factor(EDAD_MADR), 
+  mutate(EDAD_MADN = fct_recode(factor(EDAD_MADN), 
                                 `10 a 12` = "12") )
 tab
 input.l$tab_distanual_nacims <- tab
 
 gg <- tab %>% 
-  ggplot(aes(x = EDAD_MADR, 
+  ggplot(aes(x = EDAD_MADN, 
              y = prop, 
              fill= edad_gpo_padre)) + 
   geom_bar(stat = "identity") + 
@@ -155,10 +155,10 @@ input.l$gg_distanual_nacims <- gg
 
 
 gg <- df_nacims %>% 
-  group_by(EDAD_MADR) %>% 
+  group_by(EDAD_MADN) %>% 
   summarise(base = sum(count)) %>% 
   ungroup %>% 
-  ggplot(aes(x = EDAD_MADR, y = base)) + 
+  ggplot(aes(x = EDAD_MADN, y = base)) + 
   geom_bar(stat = "identity") + 
   # scale_x_continuous(breaks = seq(0, 100, by = 5)) + 
   xlim(10,100)
