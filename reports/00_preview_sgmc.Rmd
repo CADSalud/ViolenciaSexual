@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = F, fig.align = "center",
                       fig.width = 4, fig.height = 3)
 library(tidyverse)
 library(stringr)
+library(forcats)
 theme_set(theme_bw())
 col.gradient.cut <- c(colorRampPalette(c("#9999ff", "yellow", "#E67400"))(11), "gray50")
 load("../cache/input.l.RData")
@@ -287,7 +288,7 @@ input.l$gg_distanual_nacims +
 
 ```{r}
 input.l$tab_distanual_nacims %>% 
-  rename(`Edad de madre` = EDAD_MADR, 
+  rename(`Edad de madre` = EDAD_MADN, 
          `Edad de padre` = edad_gpo_padre, 
          `Frecuencia` =  n_acum, 
          `% por edad madre` = prop) %>% 
@@ -333,4 +334,9 @@ input.l$tab_edocivi_endireh %>%
                caption = "Mujeres de 15 a 19 años. Fuente: ENDIREH 2016.")
 ```
 
+## Abandono escolar
+
+```{r, fig.width=6, fig.height=4}
+input.l$gg_aband_enadid
+```
 
