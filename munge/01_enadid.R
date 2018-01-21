@@ -7,6 +7,7 @@ tab_demos_enadid <- read.dbf("data/enadid/base_datos_enadid14_dbf/TSDem.dbf") %>
   as_tibble() %>% 
   mutate(EDAD = parse_number(EDAD))
 tab_demos_enadid
+cache("tab_demos_enadid")
 
 tab_muj1 <- read.dbf("data/enadid/base_datos_enadid14_dbf/TMMujer1.dbf") %>% 
   as_tibble() %>% 

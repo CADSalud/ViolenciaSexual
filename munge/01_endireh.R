@@ -9,6 +9,8 @@ tab_demos_endireh <- read.dbf("data/endireh/base_datos_endireh2016_dbf/TSDem.DBF
   as_tibble()
 tab_demos_endireh %>% head
 
+cache("tab_demos_endireh")
+
 # estudiante
 tab_sec_vi <- read.dbf("data/endireh/base_datos_endireh2016_dbf/TB_SEC_VI.dbf") %>% 
   as_tibble() %>% 
