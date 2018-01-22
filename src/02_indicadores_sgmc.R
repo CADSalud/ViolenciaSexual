@@ -4,7 +4,8 @@ library(ProjectTemplate)
 load.project()
 library(bigrquery)
 
-tab_indicadores_sgmc <- list()
+# tab_indicadores_sgmc <- list()
+load("cache/tab_indicadores_sgmc.RData")
 
 load("cache/tab_sec_xii.RData")
 load("cache/tab_muj1.RData")
@@ -165,6 +166,20 @@ tab
 
 
 tab_indicadores_sgmc$matrimonio_precoz <- tab
+
+
+# abandono escuela ----
+tab <- tab_muj1 %>% 
+  filter(EDAD_1AG == "15 a 19") %>% 
+  group_by(EDAD_1AG, P5_3, P5_4_rec) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_PER)) %>% 
+  group_by(EDAD_1AG, P5_3) %>% 
+  mutate(prop = nfac/sum(nfac)) %>% 
+  filter(P5_3 == 1) 
+tab
+
+tab_indicadores_sgmc$abandono_escuela_adol <- tab
 
 # saving ----
 tab_indicadores_sgmc
