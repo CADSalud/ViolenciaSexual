@@ -44,7 +44,7 @@ df_envipe_id <- lapply(2012:2016, function(year.nom){
                 "] WHERE situacion = 14 and SEXO = 2")
   tt <- query_exec(sql, project = project) %>% 
     as_tibble()
-}) %>% 
+  }) %>% 
   bind_rows() %>% 
   rename(ocurrencia = ocurri__) %>% 
   unite(id_persona, c('UPM', 'VIV_SEL', 'HOGAR', 'R_SEL')) %>% 
@@ -129,7 +129,7 @@ tab <- df_envipe_id %>%
   filter(!is.na(edad_gpo), 
          edad_num <= 54) %>% 
   group_by(year) %>% 
-  bootstrap(m = 100, by_group = T) %>% 
+  bootstrap(m = 5000, by_group = T) %>% 
   do(prop_fun(.)) %>% 
   ungroup
 tab
@@ -142,11 +142,10 @@ tab %>%
   geom_boxplot()
 
 tab %>% 
-  filter(ocurrencia == 1) %>% 
-  ggplot(aes(x = edad_gpo, 
-             y = prop_conapo*1e5,
-             fill = factor(year))) + 
-  geom_boxplot()
-
+  group_by(year, edad_gpo) %>% 
+  summarise(prom = mean(prop_envipe), 
+            median = median(prop_envipe), 
+            q75 = quantile(prop_envipe, .75), 
+            q25 = quantile(prop_envipe, .25))
 
 
