@@ -37,7 +37,7 @@ query_exec("select * FROM [acoustic-field-186719:envipe.vic2_2012] limit 3",
 
 df_envipe_id <- lapply(2012:2016, function(year.nom){
   print(year.nom)
-  sql <- paste0("SELECT UPM, VIV_SEL, HOGAR, R_SEL, FAC_ELE, ",
+  sql <- paste0("SELECT UPM, VIV_SEL, HOGAR, R_SEL, FAC_ELE, SEXO, ",
                 "edad_num, year, situacion, ocurri__ ",
                 "FROM [acoustic-field-186719:envipe.vic2_", 
                 year.nom,
@@ -92,13 +92,16 @@ tab_conapo %>% head
 
 
 # proporcion de abuso
-tab <- tab_envipe %>% 
+tab_orig <- tab_envipe %>% 
   left_join(tab_conapo, 
             by = c("edad_gpo", "year")) %>% 
   na.omit() %>% 
   mutate(prop_envipe = nfac/pob_envipe, 
          prop_conapo = nfac/pob_conapo)
-tab
+
+tab_orig %>% 
+  filter(year == 2012, 
+         ocurrencia == 1)
 
 tab %>% 
   filter(ocurrencia == 1) %>% 
@@ -111,7 +114,6 @@ tab %>%
   facet_wrap(~edad_gpo, scales = "free")
 
 # Remuestreo----
-
 prop_fun <- function(sub){
   sub %>% 
     group_by(year, edad_gpo, ocurrencia) %>% 
@@ -125,27 +127,40 @@ prop_fun <- function(sub){
 }
 
 
-tab <- df_envipe_id %>% 
-  filter(!is.na(edad_gpo), 
-         edad_num <= 54) %>% 
+tab_boot <- df_envipe_id %>% 
+  filter(!is.na(edad_gpo)) %>% 
   group_by(year) %>% 
-  bootstrap(m = 5000, by_group = T) %>% 
+  bootstrap(m = 100, by_group = T) %>% 
   do(prop_fun(.)) %>% 
   ungroup
-tab
+tab_boot
 
-tab %>% 
+
+tab_boot %>% 
+  filter(ocurrencia == 1) %>% 
+  ggplot(aes(x = prop_envipe, 
+             color = factor(year))) + 
+  geom_density() + 
+  facet_wrap(~edad_gpo, scales ="free")
+
+tab_boot %>% 
   filter(ocurrencia == 1) %>% 
   ggplot(aes(x = edad_gpo, 
-             y = prop_envipe*1e5,
+             y = prop_envipe,
              fill = factor(year))) + 
   geom_boxplot()
 
-tab %>% 
-  group_by(year, edad_gpo) %>% 
-  summarise(prom = mean(prop_envipe), 
-            median = median(prop_envipe), 
-            q75 = quantile(prop_envipe, .75), 
-            q25 = quantile(prop_envipe, .25))
+summ_envipe <- tab_boot %>% 
+  filter(ocurrencia == 1) %>% 
+  dplyr::select(replicate, year, edad_gpo, n_fac, prop = prop_envipe) %>% 
+  gather(tipo, val, n_fac, prop) %>% 
+  group_by(year, edad_gpo, tipo) %>% 
+  summarise(prom = mean(val), 
+            median = median(val), 
+            q75 = quantile(val, .75), 
+            q25 = quantile(val, .25)) %>% 
+  ungroup %>% 
+  arrange(tipo)
+summ_envipe
 
-
+cache("summ_envipe")
