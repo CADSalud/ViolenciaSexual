@@ -181,8 +181,8 @@ tab_summ %>%
 
 tab_den <- dat.denuncias %>% 
   # data.frame() %>% head
-  filter(DELI_FC %in% c(3040, 3050, 3060, 3070,
-                        3080, 6012, 6014, 6021), 
+  filter(DELI_FC %in% c(3040, 3050, 3060, 3070, 3080, 
+                        6012, 6014, 6021), 
          SEXO == 2) %>% 
   mutate(redad = factor(RAN_EDAD, 1:14, gpos_edad), 
          year = 2015) %>% 
