@@ -99,6 +99,7 @@ input.l$gg_agr_tard_amb_endireh <- gg
 
 
 tab <- tab_union %>%
+  filter(edad_gpo == "[15,19]") %>%
   mutate(P11_12_5 = factor(P11_12_5, 
                            c(1,2,8), 
                            c("Sí", "No", "No recuerda"))) %>% 
@@ -123,12 +124,11 @@ gg <- tab %>%
   ylab("Proporción (%)") + 
   xlab("Respuesta") + 
   ggtitle("Proporción de mujeres agredidas\nantes de cumplir 15 años.",
-          "Mujeres de mas de 15 años.")
+          "Mujeres de entre 15 y 19 años.")
 gg 
 input.l$gg_agr_temp_endireh <- gg
 
 tab <- tab_union %>%
-  # filter(edad_gpo == "[15,19]") %>% 
   dplyr::select(ID_MUJ, ID_VIV, UPM, FAC_MUJ, FAC_VIV,
                 edad_gpo,
                 P6_6_15:P11_12_5) %>% 

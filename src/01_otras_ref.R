@@ -13,10 +13,12 @@ tab_eprimerh <- tab_sec_xii %>%
   mutate(edad_primerh = parse_number(P12_2),
          edad_gpo_primerh = cut( edad_primerh,
                                  include.lowest = T,
-                                 breaks = c(1, 9, 14, 19, 100)))
+                                 breaks = c(1, 9, 14, 19, 100))) %>% 
+  filter(edad_primerh < 90)
 
 tab_eprimerh$FAC_MUJ %>% sum() # 46 millones de mujeres mayores de 15 años
-tab <- tab_eprimerh %>% 
+tab <- tab_eprimerh %>%
+  filter(edad_num < 20) %>% 
   group_by(edad_gpo_primerh) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
@@ -35,21 +37,24 @@ gg <- ggplot(tab, aes(x = edad_gpo_primerh,
   geom_label(aes(y = prop + .05, 
                  label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
-  xlab("Grupos de edad") + 
-  ggtitle("Distribución de edad al primer hijo.")
+  xlab("Grupos de edad del primer hijo") + 
+  ggtitle("Distribución de edad al primer hijo.",
+          "Mujeres entre 15 y 19 años")
 gg
 input.l$gg_gpoedad_primerh_endireh <- gg
 
   
 gg <- tab_eprimerh %>% 
+  filter(edad_num < 20) %>% 
   filter(edad_primerh < 99) %>% 
   ggplot(aes(x = "", y = edad_primerh)) + 
   geom_boxplot(fill = "red", alpha = .5) + 
   scale_y_continuous(breaks = seq(0, 110, 5)) +
-  ggtitle("Distribución de edad al primer hijo") + 
+  ggtitle("Distribución de edad al primer hijo",
+          "Mujeres entre 15 y 19 años") + 
   coord_flip() + 
   xlab(NULL) + 
-  ylab("Edad en años")
+  ylab("Edad en años al primer hijo")
 gg
 input.l$gg_edad_primerh <- gg
 
@@ -68,10 +73,12 @@ tab_eprimerarel <- tab_sec_xii %>%
          edad_gpo_primerarel = cut( edad_primerarel,
                                  include.lowest = T,
                                  breaks = c(5, 9, 14, 19, 100)), 
-         consentimiento = factor(P12_7, c(1:2, 9), c("sí", "no", "no especificado")))
-table(tab_eprimerarel$consentimiento, tab_eprimerarel$P12_7 )
+         consentimiento = factor(P12_7, c(1:2, 9), c("sí", "no", "no especificado"))) %>% 
+  filter(edad_primerarel < 90)
+table(tab_eprimerarel$consentimiento, tab_eprimerarel$P12_7 ) 
 
 tt <- tab_eprimerarel %>% 
+  filter(edad_num < 20) %>% 
   group_by(consentimiento, 
            edad_gpo_primerarel) %>% 
   summarise(n = n(), 
@@ -93,8 +100,8 @@ gg <-
   theme(legend.position = "right") +
   ylab("Proporción (%)") + 
   xlab("Edad de primera relación") + 
-  ggtitle("Distribución de edad de primera relación", 
-          "Consentimiento de la relación")
+  ggtitle("Consentimiento por de edad de primera relación", 
+          "Mujeres entre 15 y 19 años")
 gg
 input.l$gg_gpoedad_primerarel_endireh <- gg
 
@@ -107,10 +114,13 @@ tab_conyug_i <- tab_sec_xii %>%
                                 breaks = c(5, 9, 14, 19, 100)), 
          edad_pareja = parse_number(P12_15AB), 
          edad_gpo_mujer = cut(edad_num, include.lowest = T, 
-                          breaks = c(15, 19, 100)))
+                          breaks = c(15, 19, 100))) %>% 
+  filter(edad_conyug < 90, 
+         edad_pareja < 90)
 tab_conyug_i %>% data.frame() %>% head
 
 tab <- tab_conyug_i %>% 
+  filter(edad_num < 20) %>% 
   group_by(edad_gpo_conyug) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
@@ -125,7 +135,8 @@ gg <- ggplot(tab, aes(x = edad_gpo_conyug,
   geom_bar(stat = "identity", position = "dodge",
            fill = "red", alpha = .5) + 
   geom_label(aes(label = format(nfac, big.mark = ","))) + 
-  ggtitle("Distribución de edad de primera unión") + 
+  ggtitle("Distribución de edad de primera unión", 
+          "Mujeres entre 15 y 19 años") + 
   ylab("Proporción (%)") + 
   xlab("Edad de la primera unión")
 gg
@@ -133,6 +144,7 @@ input.l$gg_gpoedad_primeraun <- gg
 
 
 tt <- tab_conyug_i %>% 
+  filter(edad_num < 20) %>% 
   group_by(edad_gpo_conyug, edad_pareja) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
@@ -155,12 +167,13 @@ gg <- tt %>%
   xlab("Edad de la pareja") + 
   guides(color = guide_legend("Grupo de edad\nmujer")) + 
   ggtitle("Probabilidad de la edad de la pareja.",
-          "Grupo de edad de la mujer en la primera union.")
+          "Mujeres entre 15 y 19 años")
 gg
 input.l$gg_prop_edadparejaunion_endireh <- gg
 
 
 gg <- tab_conyug_i %>% 
+  filter(edad_num < 20) %>% 
   filter(!is.na(edad_gpo_conyug)) %>% 
   ggplot(aes(x = edad_gpo_conyug, y = edad_pareja)) + 
   geom_hline(yintercept = 18, color = "gray40", 
@@ -187,6 +200,7 @@ input.l$gg_box_edadparejaunion_endireh <- gg
 
 
 gg <- tab_conyug_i %>% 
+  filter(edad_num < 20) %>% 
   filter(!is.na(edad_gpo_conyug)) %>% 
   ggplot(aes(x = edad_gpo_conyug, y = edad_pareja)) + 
   geom_hline(yintercept = 18, color = "gray40", 
@@ -205,8 +219,8 @@ gg <- tab_conyug_i %>%
   xlab("Grupo de edad") + 
   ylab("Edad de la pareja") + 
   theme(legend.position = "none") +
-  ggtitle("Distribución de la edad de la pareja por\nedad actual de la mujer.",
-          "Grupo de edad de la mujer en la primera union.") +  
+  ggtitle("Edad de la pareja por\nedad de la mujer en la primera union.",
+          "Mujeres entre 15 y 19 años") +  
   facet_wrap(~edad_gpo_mujer) +
   coord_flip()
 gg
@@ -215,6 +229,7 @@ input.l$gg_box_edadparejaunion_gpomuj_endireh <- gg
 
 # Razones de union actual ----
 tab_razon <- tab_sec_xii %>%
+  filter(edad_num < 20) %>% 
   dplyr::select(ID_VIV:FAC_MUJ, P12_9, P12_10, P12_11) %>% 
   mutate(edad_union = parse_number(P12_9),
          edad_gpo_union = cut( edad_union,
@@ -228,7 +243,8 @@ tab_razon <- tab_sec_xii %>%
                             "arreglo a cambio de dinero, etc", 
                             "salir de casa", 
                             "decisión mutua", 
-                            "otro")))
+                            "otro"))) %>% 
+  filter(edad_union < 90)
 tab_razon %>% data.frame() %>% head
 
 
@@ -255,9 +271,11 @@ gg <- tab %>%
   ggplot(aes(x = edad_gpo_union, y = prop)) + 
   geom_bar(aes(fill = razones), 
            stat = "identity", 
-           position = "stack", 
+           position = "dodge", 
            alpha = .7, 
-           width = .6)   
+           width = .6) +
+  ggtitle("Razones de unión",
+          "Mujeres de 15 a 19 años")
 gg
 input.l$gg_razones_endireh <- gg
 
@@ -388,7 +406,6 @@ tab_muj1 %>%
 
 
 # Aborto
-
 tab_muj1 %>% 
   filter(!is.na(P5_22)) %>% 
   group_by(EDAD_1AG, P5_22) %>% 
