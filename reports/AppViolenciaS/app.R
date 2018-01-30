@@ -17,7 +17,7 @@ library(lubridate)
 
 load("df_resumen.RData")
 
-theme_set(theme_minimal(base_size = 14))
+theme_set(theme_bw(base_size = 17))
 
 
 
@@ -32,66 +32,79 @@ ui <- fluidPage(
   
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
-   sidebarPanel(width = 3,
+   sidebarPanel(width = 4,
   
   h4("Selecciona un indicador y un rango de edad."),
   br(),
   
         selectInput(inputId = "redad.filt", 
                     label = "Rango de Edad",
-                    selected = c("nosolt"),
+                    selected = c("[15 a 19]"),
                     choices = c("[10 a 14]", 
                                 "[12 a 14]",
                                 "[15 a 19]")) ,
         selectInput(inputId = "indicador.filt", 
                     label = "Indicador",
                     selected = c("nosolt"),
-                    choices = c("nosolt" = "nosolt",
-                                "nosoltp" = "nosoltp",
-                                "egreobs" = "egreobs",
-                                "egreobsp" = "egreobsp",
-                                "embalgv" = "embalgv",
-                                "embalgvp" = "embalgvp",
-                                "aborto" = "aborto",
-                                "abortopemb" = "abortopemb",
-                                "embact" = "embact",
-                                "embactp" = "embactp",
-                                "edadprsprom" = "edadprsprom",
-                                "prs" = "prs",
-                                "nacims" = "nacims",
-                                "edad_padn_avg" = "edad_padn_avg",
-                                "pob_conapo" = "pob_conapo",
-                                "nacims_mil" = "nacims_mil",
-                                "mmat" = "mmat",
-                                "mmatpm" = "mmatpm",
-                                "mmatp" = "mmatp",
-                                "mabor" = "mabor",
-                                "maborpm" = "maborpm",
-                                "maborp" = "maborp",
-                                "egreobspe" = "egreobspe",
-                                "egreporab" = "egreporab",
-                                "egreporabpe" = "egreporabpe",
-                                "egreporabp" = "egreporabp",
-                                "egreporviolsex" = "egreporviolsex",
-                                "egreporviolsexpe" = "egreporviolsexpe",
-                                "egreporviolsexp" = "egreporviolsexp",
-                                "pconsemb" = "pconsemb",
-                                "consemb" = "consemb",
-                                "pconsembp" = "pconsembp",
-                                "consembp" = "consembp",
-                                "porconsembc" = "porconsembc")
+                    choices = c("Num. mujeres casadas o unidas" = "nosolt",
+                                "Porc. mujeres casada o unidas" = "nosoltp",
+                                "Num. embarazadas alguna vez" = "embalgv",
+                                "Porc. embarazadas alguna vez" = "embalgvp",
+                                "Num. pérdida o aborto alguna vez" = "aborto",
+                                "Aborto alg vez por embarazadas alg vez" = "abortopemb",
+                                "Num. embarazadas actualmente" = "embact",
+                                "Porc. embarazadas actualmente" = "embactp",
+                                "Edad promedio primera relación sexual" = "edadprsprom",
+                                "Porc. sexualmente activas por total mujeres" = "prs",
+                                "Num. nacimientos" = "nacims",
+                                "Edad promedio del padre" = "edad_padn_avg",
+                                "Población (CONAPO)" = "pob_conapo",
+                                "Tasa nacimientos 1000 habs." = "nacims_mil",
+                                "Num. muerte materna" = "mmat",
+                                "Porc. muerte materna por total defunciones" = "mmatpm",
+                                "Tasa de muerte materna 100000 mujeres" = "mmatp",
+                                "Num. muerte por aborto" = "mabor",
+                                "Porc. muerte por aborto por total defunciones" = "maborpm",
+                                "Tasa de muerte por aborto 100000 mujeres" = "maborp",
+                                "Num. egresos hosp. causas obstetricas" = "egreobs",
+                                "Porc. egresos hosp. causas obstetricas" = "egreobsp",
+                                "Porc. egresos hosp. causas obstetricas por total egresos" = "egreobspe",
+                                "Num. egresos hosp por aborto " = "egreporab",
+                                "Porc. egresos por aborto del total de egresos" = "egreporabpe",
+                                "Porc. egresos por aborto del total de mujeres" = "egreporabp",
+                                "Num. egresos hosp. por abuso sexual" = "egreporviolsex",
+                                "Porc. egresos por abuso sexual por total egresos" = "egreporviolsexpe",
+                                "Porc. egresos por abuso sexual por total mujeres" = "egreporviolsexp",
+                                "Total primera consulta por embarazo anuales" = "pconsemb",
+                                "Total consulta por embarazo por embarazo anuales" = "consemb",
+                                "Promedio mensual primera consulta por embarazo" = "pconsembp",
+                                "Promedio mensual consulta por embarazo" = "consembp",
+                                "Porc. consulta por embarazo por total consultas anuales" = "porconsembc")
         )
       ),
       
       # Show a plot of the generated distribution
       mainPanel(
-        h3(textOutput("titletema.filt")),
-        h4(textOutput("titleindicador.filt")),
-        wellPanel(
-          plotOutput("ggplot.filt")),
-        wellPanel(
-          dataTableOutput("datatab.filt"))
+        h3(textOutput("titleindicador.filt")),
+        h4(textOutput("titletema.filt")),
+        "Información disponible de indicadores por fuente de 2010 a 2016.",
+        br(),
+        br(),
+        
+        tabsetPanel(
+          tabPanel("Gráfica", 
+                   br(),
+                   "Visualización de indicador seleccionado",
+                   br(),
+                   plotOutput("ggplot.filt")),
+          tabPanel("Tabla", 
+                   br(),
+                   "Tabla puntual de indicador seleccionado",
+                   br(),
+                   dataTableOutput("datatab.filt"))
+        )
       ) # main panel
+
   
    ), # sidebarLayout
   
@@ -110,6 +123,7 @@ server <- function(input, output) {
    
   tabFilt <- reactive({
     df_resumen %>% 
+      mutate(Valor = round(Valor, 4)) %>% 
       spread(Year, Valor) %>% 
       filter(Indicador == input$indicador.filt, 
              Adolescencia == input$redad.filt) 
@@ -122,7 +136,7 @@ server <- function(input, output) {
   
   output$titletema.filt <- renderText({ 
     tab <- tabFilt()
-    str_to_title(unique(tab$Tema ))
+    paste("Tema:", str_to_title(unique(tab$Tema )))
   })
   
   output$datatab.filt <- renderDataTable({
@@ -146,9 +160,13 @@ server <- function(input, output) {
       ggplot(aes(x = year, y = value, 
                  color = Fuente,
                  group = Fuente)) + 
-      geom_point() +
+      geom_point(size = 4) +
       geom_line() + 
-      ggtitle( paste("Rango de edad:", unique(tab$Adolescencia)) )
+      ylab("indicador") + 
+      xlab("años") + 
+      scale_y_continuous(labels = function(x)format(x, big.mark=",")) + 
+      ggtitle("" ,
+               paste("Rango de edad:", unique(tab$Adolescencia)) )
     
     print(gg)
   })
