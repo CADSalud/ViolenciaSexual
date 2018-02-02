@@ -6,6 +6,7 @@ load.project()
 load("cache/dist_ensanut12_vs.RData")
 load("cache/summ_envipe.RData")
 load("cache/dat.denuncias.RData")
+load("cache/poblacion.RData")
 
 graficas_proys_l <- list()
 
@@ -180,10 +181,33 @@ graficas_proys_l$gg_3 <- gg
 
 
 # averiguaciones previas delitos relacionados ----
-tab_summ %>% 
+
+tab_conapo <- poblacion %>% 
+  filter(edad > 9,
+         edad < 60,
+         anio == 2015, 
+         sexo == "Mujeres") %>% 
+  mutate(redad = cut(edad, 
+                        breaks = c(9, 14, 19, 24, 29, 34, 
+                                   39, 44, 49, 54, 59),
+                        labels = c("10 a 14", "15 a 19", "20 a 24", 
+                                   "25 a 29", "30 a 34", "35 a 39",
+                                   "40 a 44", "45 a 49", "50 a 54", 
+                                   "55 a 59"),
+                        include.lowest = F), 
+         year = parse_number(anio)) %>% 
+  group_by(sexo, redad, year) %>% 
+  summarise(pob_conapo = sum(pob)) %>% 
+  ungroup() %>% 
+  dplyr::select(-sexo)
+tab_conapo
+
+tab_summ <- tab_proy_15 %>% 
   filter(year == 2015, 
-         tipo == "n_fac",
-         var == "median")
+         var == "median") %>% 
+  left_join(tab_conapo) %>% 
+  mutate(n = val*pob_conapo)
+tab_summ
 
 
 tab_den <- dat.denuncias %>% 
@@ -198,23 +222,11 @@ tab_den <- dat.denuncias %>%
   ungroup()
 
 tab_cifneg <- tab_summ %>% 
-  filter(year == 2015, 
-         tipo == "n_fac",
-         var == "median", 
-         redad %in% gpos_edad[3:10]) %>% 
-  bind_rows(tibble(year = 2015, 
-                   redad = c('10 a 14', '15 a 19'), 
-                   enc = "proyección",
-                   var = "median",
-                   tipo = "n_fac",
-                   val = c(8355.5/prop1, 9650.0/prop2))) %>% 
   left_join(tab_den) %>% 
-  mutate(cifra_neg = 1-victimas_den/val, 
+  mutate(cifra_neg = 1-victimas_den/n, 
          redad = factor(redad, gpos_edad[3:10])) %>% 
   arrange(redad)
 tab_cifneg
-
-
 
 gg <- tab_cifneg  %>% 
   ggplot(aes(x = as.numeric(redad))) + 
@@ -230,11 +242,7 @@ gg <- tab_cifneg  %>%
   scale_y_continuous(labels = function(x)paste(100*x, "%")) +
   ylab("proporción violación \n con averiguación previa abierta") + 
   xlab("grupos de edad") + 
-  labs(subtitle = "Averiguaciones de varios delitos sexuales.") + 
-#   labs(caption = "Averiguaciones de violación sexual, equiparada, 
-# estupro, incesto prostitución menores, lenocinio, 
-# tráfico con fines explotación sexual y 
-# otros delitos contra libertad sexual.") +
+  labs(subtitle = "Averiguaciones de varios delitos sexuales.") +
   facet_wrap(~year, scales = "free_y")
 gg
 
@@ -253,19 +261,9 @@ tab_den <- dat.denuncias %>%
   summarise(victimas_den = sum(TT_VICT, na.rm = T)) %>% 
   ungroup()
 
-tab_cifneg <- tab_summ %>% 
-  filter(year == 2015, 
-         tipo == "n_fac",
-         var == "median", 
-         redad %in% gpos_edad[3:10]) %>% 
-  bind_rows(tibble(year = 2015, 
-                   redad = c('10 a 14', '15 a 19'), 
-                   enc = "proyección",
-                   var = "median",
-                   tipo = "n_fac",
-                   val = c(8355.5/prop1, 9650.0/prop2))) %>% 
+tab_cifneg <- tab_summ %>%  
   left_join(tab_den) %>% 
-  mutate(cifra_neg = 1-victimas_den/val, 
+  mutate(cifra_neg = 1-victimas_den/n, 
          redad = factor(redad, gpos_edad[3:10])) %>% 
   arrange(redad)
 tab_cifneg
