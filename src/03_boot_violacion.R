@@ -230,7 +230,7 @@ gg <- tab_cifneg  %>%
   scale_y_continuous(labels = function(x)paste(100*x, "%")) +
   ylab("proporción violación \n con averiguación previa abierta") + 
   xlab("grupos de edad") + 
-  labs(subtitle = "Averiguaciones de varios delitos sexuales") + 
+  labs(subtitle = "Averiguaciones de varios delitos sexuales.") + 
 #   labs(caption = "Averiguaciones de violación sexual, equiparada, 
 # estupro, incesto prostitución menores, lenocinio, 
 # tráfico con fines explotación sexual y 
