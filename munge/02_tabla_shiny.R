@@ -3,7 +3,7 @@ library(tidyverse)
 
 df_resumen <- readxl::read_excel("data/TablaResumenVS_VU.xlsx") %>% 
   dplyr::rename(Year = Año)
-df_resumen
+df_resumen$Descripcion %>% unique()
 
 cache("df_resumen")
 
