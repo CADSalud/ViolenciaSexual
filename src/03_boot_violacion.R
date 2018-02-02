@@ -179,7 +179,7 @@ gg
 graficas_proys_l$gg_3 <- gg
 
 
-# cifra negra ----
+# averiguaciones previas delitos relacionados ----
 tab_summ %>% 
   filter(year == 2015, 
          tipo == "n_fac",
@@ -230,10 +230,66 @@ gg <- tab_cifneg  %>%
   scale_y_continuous(labels = function(x)paste(100*x, "%")) +
   ylab("proporción violación \n con averiguación previa abierta") + 
   xlab("grupos de edad") + 
+  labs(subtitle = "Averiguaciones de varios delitos sexuales") + 
+#   labs(caption = "Averiguaciones de violación sexual, equiparada, 
+# estupro, incesto prostitución menores, lenocinio, 
+# tráfico con fines explotación sexual y 
+# otros delitos contra libertad sexual.") +
   facet_wrap(~year, scales = "free_y")
 gg
 
 graficas_proys_l$gg_4 <- gg
 graficas_proys_l$tab_4 <- tab_cifneg
+
+
+# # averiguaciones previas delitos solo violación (equiparada, sexual) ----
+tab_den <- dat.denuncias %>% 
+  # data.frame() %>% head
+  filter(DELI_FC %in% c(3040, 3050), 
+         SEXO == 2) %>% 
+  mutate(redad = factor(RAN_EDAD, 1:14, gpos_edad), 
+         year = 2015) %>% 
+  group_by(year, redad) %>% 
+  summarise(victimas_den = sum(TT_VICT, na.rm = T)) %>% 
+  ungroup()
+
+tab_cifneg <- tab_summ %>% 
+  filter(year == 2015, 
+         tipo == "n_fac",
+         var == "median", 
+         redad %in% gpos_edad[3:10]) %>% 
+  bind_rows(tibble(year = 2015, 
+                   redad = c('10 a 14', '15 a 19'), 
+                   enc = "proyección",
+                   var = "median",
+                   tipo = "n_fac",
+                   val = c(8355.5/prop1, 9650.0/prop2))) %>% 
+  left_join(tab_den) %>% 
+  mutate(cifra_neg = 1-victimas_den/val, 
+         redad = factor(redad, gpos_edad[3:10])) %>% 
+  arrange(redad)
+tab_cifneg
+
+gg <- tab_cifneg  %>% 
+  ggplot(aes(x = as.numeric(redad))) + 
+  geom_ribbon(aes(ymin = 0, ymax = cifra_neg), 
+              fill = "indianred2") + 
+  geom_hline(yintercept = 1, 
+             color = "gray30") + 
+  geom_label(aes(y = cifra_neg - .01, 
+                 label = paste0(round(100*cifra_neg), "%") ), 
+             color = "gray30") + 
+  scale_x_continuous(breaks = 1:8, 
+                     labels = gpos_edad[3:10]) +
+  scale_y_continuous(labels = function(x)paste(100*x, "%")) +
+  ylab("proporción violación \n con averiguación previa abierta") + 
+  xlab("grupos de edad") + 
+  labs(subtitle = "Averiguaciones de violación sexual y equiparada.") + 
+  facet_wrap(~year, scales = "free_y")
+gg
+
+graficas_proys_l$gg_5 <- gg
+graficas_proys_l$tab_5 <- tab_cifneg
+
 
 cache("graficas_proys_l")
