@@ -228,7 +228,7 @@ gg <- tab_cifneg  %>%
   scale_x_continuous(breaks = 1:8, 
                      labels = gpos_edad[3:10]) +
   scale_y_continuous(labels = function(x)paste(100*x, "%")) +
-  ylab("cifra negra") + 
+  ylab("proporción violación \n con averiguación previa abierta") + 
   xlab("grupos de edad") + 
   facet_wrap(~year, scales = "free_y")
 gg
