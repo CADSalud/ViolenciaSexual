@@ -2,6 +2,8 @@
 library(ProjectTemplate)
 load.project()
 
+library(Hmisc)
+
 # endireh
 load("cache/tab_sec_xii.RData") 
 load("cache/input.l.RData") 
