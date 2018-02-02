@@ -88,15 +88,20 @@ graficas_proys_l$gg_1 <- gg
 
 
 # diferencia promedio ----
+
+tab_summ %>% 
+  filter(tipo == "prop")
+
 dif_summ <- tab_summ %>% 
   spread(enc, val) %>% 
   filter(var == "median", 
          tipo == "prop") %>% 
   na.omit() %>% 
   mutate(diff = ENVIPE - ENSANUT) %>% 
-  group_by(tipo, var) %>% 
-  summarise(prom_diff = mean(diff)) %>% 
-  ungroup()
+  filter(redad == "20 a 24")
+  # group_by(tipo, var) %>% 
+  # summarise(prom_diff = mean(diff)) %>% 
+  # ungroup()
 dif_summ
 
 tab_proy_adol <- tab_summ %>% 
@@ -105,11 +110,12 @@ tab_proy_adol <- tab_summ %>%
          var == "median", 
          tipo == "prop",
          redad %in% c('15 a 19', '10 a 14')) %>% 
-  mutate(val = val + dif_summ$prom_diff, 
+  mutate(val = val + dif_summ$diff, 
          enc = "proyeccion") %>% 
   bind_rows(tab_summ %>% 
               filter(tipo == "prop"))
-tab_proy_adol
+tab_proy_adol %>% 
+  filter(var == "median")
 
 gg <- tab_proy_adol %>% 
   filter(year %in% c(2012)) %>%
@@ -129,9 +135,10 @@ graficas_proys_l$gg_2 <- gg
 # diferencia 2015 ----
 tt <- tab_proy_adol %>% 
   filter(year == 2012, var == "median")
-val1 <- 0.001421439
-val2 <- 0.00221867
-val3 <- 0.0005379935
+tt
+val1 <- 0.00101
+val2 <- 0.00181
+val3 <- 0.000538  
 
 prop2 <- val3/val2
 prop1 <- val3/val1
