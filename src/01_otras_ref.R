@@ -7,7 +7,6 @@ load("cache/tab_sec_xii.RData")
 load("cache/input.l.RData") 
 
 
-
 # Edad del primer hijo
 tab_eprimerh <- tab_sec_xii %>% 
   mutate(edad_primerh = parse_number(P12_2),
@@ -172,23 +171,38 @@ gg
 input.l$gg_prop_edadparejaunion_endireh <- gg
 
 
+wgtquant_fun <- function(sub){
+  vecs <- wtd.quantile(sub$edad_pareja, weights = sub$FAC_MUJ)
+  tibble(edad_pareja = vecs,
+         probs = str_trim(names(vecs)) ) 
+}
+
 gg <- tab_conyug_i %>% 
   filter(edad_num < 20) %>% 
   filter(!is.na(edad_gpo_conyug)) %>% 
-  ggplot(aes(x = edad_gpo_conyug, y = edad_pareja)) + 
+  group_by(edad_gpo_conyug) %>% 
+  do(wgtquant_fun(sub = .)) %>% 
+  ungroup %>% 
+  spread(probs, edad_pareja) %>% 
+  ggplot(aes(x = edad_gpo_conyug)) + 
+  geom_boxplot(aes(ymin = `0%`, 
+                   lower = `25%`, 
+                   middle = `50%`, 
+                   upper = `75%`, 
+                   ymax = `100%`, 
+                   fill = edad_gpo_conyug),
+               stat = "identity", 
+               alpha = .5) + 
   geom_hline(yintercept = 18, color = "gray40", 
              linetype = 3, 
              size = 1) +
   geom_hline(yintercept = 18, color = "gray40", 
              linetype = 1, 
-             size = .5) +
-  geom_boxplot(aes(fill = edad_gpo_conyug), 
-               alpha = .5) + 
+             size = .5) + 
   annotate("text", label = "mayoría de edad", 
            color = "gray40",
            x = 0.5, y = 20, 
            hjust =0) +
-  scale_y_continuous(breaks = seq(0, 110, 5)) +
   xlab("Grupo de edad") + 
   ylab("Edad de la pareja") + 
   theme(legend.position = "none") +
@@ -197,6 +211,7 @@ gg <- tab_conyug_i %>%
   coord_flip()
 gg
 input.l$gg_box_edadparejaunion_endireh <- gg
+
 
 
 gg <- tab_conyug_i %>% 
@@ -225,6 +240,36 @@ gg <- tab_conyug_i %>%
   coord_flip()
 gg
 input.l$gg_box_edadparejaunion_gpomuj_endireh <- gg
+
+# edad de primera union ENDIREH
+tab <- tab_conyug_i %>% 
+  filter(edad_num < 20) %>% 
+  group_by(CVE_ENT, NOM_ENT, edad_gpo_conyug) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ)) %>% 
+  filter(!is.na(edad_gpo_conyug)) 
+tab %>% data.frame()
+input.l$tab_entprimeraunion_gpomuj_endireh <- tab
+
+
+# edo<-readShapeSpatial("data/mex_edos/Mex_Edos")
+# edo@data$id <- rownames(edo@data)
+# edo_df<- edo %>%
+#   fortify() %>%
+#   mutate(id=as.numeric(id)+1)
+# 
+# edo_subdiag <- left_join(edo_df, tab, by = 'id') 
+# 
+# gg <- ggplot(data = edo_subdiag, aes(long, lat, group=group)) + 
+#   geom_polygon( aes(fill = prom, group = group),
+#                 color='black', size = .4) + 
+#   coord_fixed() +
+#   theme(axis.text = element_blank(), 
+#         axis.title = element_blank()
+#   ) + 
+#   scale_fill_continuous(low = 'white', high = '#132B43') + 
+#   guides(fill = guide_legend(title = "Time to Job\nPromedio")) +
+#   theme(legend.position = 'top')
 
 
 # Razones de union actual ----
