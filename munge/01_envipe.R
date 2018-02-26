@@ -10,6 +10,15 @@ tab_demos_envipe <- read.dbf("data/envipe/bd_envipe2017_dbf/TSDem.dbf") %>%
 tab_demos_envipe %>% head
 
 
+tab <- tab_demos_envipe %>% 
+  group_by(CVE_ENT, CVE_MUN) %>% 
+  tally()
+tab$n %>% summary
+
+tab_demos_envipe %>% 
+  group_by(CVE_ENT) %>% 
+  summarise(n = n())
+
 tab_vic2 <- read.dbf("data/envipe/bd_envipe2017_dbf/TPer_Vic2.dbf") %>% 
   as_tibble() %>% 
   dplyr::select(ID_VIV:CVE_MUN, 

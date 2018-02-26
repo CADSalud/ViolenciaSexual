@@ -8,14 +8,26 @@ library(Hmisc)
 load("cache/tab_sec_xii.RData") 
 load("cache/input.l.RData") 
 
+tab_sec_xii %>% 
+  filter(edad_num <= 19, edad_num>=10) %>% 
+  group_by(SEXO) %>% 
+  summarise(sum(FAC_MUJ))
+
 
 # Edad del primer hijo
 tab_eprimerh <- tab_sec_xii %>% 
   mutate(edad_primerh = parse_number(P12_2),
-         edad_gpo_primerh = cut( edad_primerh,
+         edad_gpo_primerh = cut( ifelse(edad_primerh > 95, NA, edad_primerh),
                                  include.lowest = T,
-                                 breaks = c(1, 9, 14, 19, 100))) %>% 
-  filter(edad_primerh < 90)
+                                 breaks = c(1, 9, 14, 19, 100)), 
+         edad_gpo_primerh = fct_explicit_na(edad_gpo_primerh, "(NA)")) 
+
+
+tab_eprimerh %>%
+  filter(!is.na(edad_primerh),
+         edad_num < 20) %>% 
+  summarise(sum(FAC_MUJ), 
+            n())
 
 tab_eprimerh$FAC_MUJ %>% sum() # 46 millones de mujeres mayores de 15 años
 tab <- tab_eprimerh %>%
@@ -23,7 +35,7 @@ tab <- tab_eprimerh %>%
   group_by(edad_gpo_primerh) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
-  filter(!is.na(edad_gpo_primerh)) %>% 
+  filter(!is.na(edad_gpo_primerh)) %>%
   ungroup %>% 
   mutate(prop = nfac/sum(nfac)) 
 tab
@@ -35,14 +47,15 @@ gg <- ggplot(tab, aes(x = edad_gpo_primerh,
   geom_bar(stat = "identity", position = "stack",
            fill = "red", alpha = .5, 
            width = .6) + 
-  geom_label(aes(y = prop + .05, 
-                 label = format(nfac, big.mark = ","))) + 
+  # geom_label(aes(y = prop + .05, 
+                 # label = format(nfac, big.mark = ","))) + 
   ylab("Proporción (%)") + 
   xlab("Grupos de edad del primer hijo") + 
   ggtitle("Distribución de edad al primer hijo.",
           "Mujeres entre 15 y 19 años")
 gg
 input.l$gg_gpoedad_primerh_endireh <- gg
+ggsave(plot = gg, filename = "graphs/gg_gpoedad_primerh_endireh.png")
 
   
 gg <- tab_eprimerh %>% 
@@ -115,10 +128,56 @@ tab_conyug_i <- tab_sec_xii %>%
                                 breaks = c(5, 9, 14, 19, 100)), 
          edad_pareja = parse_number(P12_15AB), 
          edad_gpo_mujer = cut(edad_num, include.lowest = T, 
-                          breaks = c(15, 19, 100))) %>% 
+                          breaks = c(15, 19, 100))) #%>% 
   filter(edad_conyug < 90, 
          edad_pareja < 90)
 tab_conyug_i %>% data.frame() %>% head
+
+dim(tab_conyug_i)
+dim(tab_sec_xii)
+
+tab_sec_xii %>% 
+  filter(edad_num < 20) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ))
+
+tab_conyug_i %>% 
+  filter(!is.na(edad_conyug), 
+         edad_num < 20) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ))
+
+gg <- tab_conyug_i %>% 
+  filter(!is.na(edad_conyug), 
+         edad_conyug < 70) %>%  
+  group_by(edad_conyug) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ)) %>% 
+  ungroup() %>% 
+  mutate(prop = nfac/sum(nfac), 
+         total = sum(nfac)) %>% 
+  ggplot(aes(x = edad_conyug, y = prop)) + 
+  geom_line(color = "gray60") + 
+  geom_point(aes(size = n, 
+                 alpha = nfac)) + 
+  ggtitle("Distribución de edad de primera unión", 
+          "Mujeres de 15 a 70 años") + 
+  xlab("Proporción") + 
+  ylab("Edad primera unión") + 
+  guides(size = guide_legend("Casos observados"), 
+         alpha = guide_legend("Casos ponderados"))
+ggsave(filename = "graphs/distrib_primera_union.png", plot = gg, width = 7, height = 4)
+
+
+tab_conyug_i %>% 
+  filter(edad_num < 90) %>% 
+  group_by(edad_gpo_conyug) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ)) %>% 
+  filter(!is.na(edad_gpo_conyug)) %>% 
+  ungroup %>% 
+  mutate(prop = nfac/sum(nfac))
+
 
 tab <- tab_conyug_i %>% 
   filter(edad_num < 20) %>% 
