@@ -19,9 +19,9 @@ tab_eprimerh <- tab_sec_xii %>%
   mutate(edad_primerh = parse_number(P12_2),
          edad_gpo_primerh = cut( ifelse(edad_primerh > 95, NA, edad_primerh),
                                  include.lowest = T,
-                                 breaks = c(1, 9, 14, 19, 100)), 
+                                 breaks = c(1, 9, 14, 19, 95, 97, 100)), 
          edad_gpo_primerh = fct_explicit_na(edad_gpo_primerh, "(NA)")) 
-
+tab_eprimerh$edad_gpo_primerh %>% unique()
 
 tab_eprimerh %>%
   filter(!is.na(edad_primerh),
@@ -32,6 +32,7 @@ tab_eprimerh %>%
 tab_eprimerh$FAC_MUJ %>% sum() # 46 millones de mujeres mayores de 15 años
 tab <- tab_eprimerh %>%
   filter(edad_num < 20) %>% 
+  filter(!is.na(edad_primerh)) %>% 
   group_by(edad_gpo_primerh) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
@@ -162,8 +163,8 @@ gg <- tab_conyug_i %>%
                  alpha = nfac)) + 
   ggtitle("Distribución de edad de primera unión", 
           "Mujeres de 15 a 70 años") + 
-  xlab("Proporción") + 
-  ylab("Edad primera unión") + 
+  ylab("Proporción") + 
+  xlab("Edad primera unión") + 
   guides(size = guide_legend("Casos observados"), 
          alpha = guide_legend("Casos ponderados"))
 ggsave(filename = "graphs/distrib_primera_union.png", plot = gg, width = 7, height = 4)

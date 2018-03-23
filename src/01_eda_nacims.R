@@ -1,12 +1,14 @@
 
 
 library(ProjectTemplate)
-# reload.project()
+# load.project()
 
 library(bigrquery)
 
 # Proyecto ----
 project <- "acoustic-field-186719" # put your project ID here
+query_exec(query = "SELECT filenom, ANO_REG, EDAD_MADN, EDAD_PADN FROM [acoustic-field-186719:nacimientos.nacim2015] LIMIT 10", 
+           project = project)
 
 # Query de tablas ----
 df_nacims <- lapply(2010:2016, function(year.nom){

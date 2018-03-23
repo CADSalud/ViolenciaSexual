@@ -137,9 +137,9 @@ graficas_proys_l$gg_2 <- gg
 tt <- tab_proy_adol %>% 
   filter(year == 2012, var == "median")
 tt
-val1 <- 0.00101
-val2 <- 0.00181
-val3 <- 0.000538  
+val1 <- filter(tt, redad == "10 a 14", enc == "proyeccion")$val
+val2 <- filter(tt, redad == "15 a 19", enc == "proyeccion")$val
+val3 <- filter(tt, redad == "20 a 24", enc == "ENVIPE")$val
 
 prop2 <- val3/val2
 prop1 <- val3/val1

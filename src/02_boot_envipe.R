@@ -7,7 +7,7 @@ load("cache/poblacion.RData")
 
 library(bigrquery)
 
-
+# 
 # Proyecto ----
 project <- "acoustic-field-186719" # put your project ID here
 
@@ -103,7 +103,9 @@ tab_orig %>%
   filter(year == 2012, 
          ocurrencia == 1)
 
-tab %>% 
+# Compare population estimation ----
+# Proportion using conapo population and envipe population
+tab_orig %>% 
   filter(ocurrencia == 1) %>% 
   ggplot(aes(x = prop_envipe, y = prop_conapo, 
              color = factor(year))) + 
@@ -112,6 +114,8 @@ tab %>%
   scale_x_continuous(labels = function(x)100000*x) +
   scale_y_continuous(labels = function(x)100000*x) +
   facet_wrap(~edad_gpo, scales = "free")
+
+
 
 # Remuestreo----
 prop_fun <- function(sub){
