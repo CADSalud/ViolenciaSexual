@@ -83,22 +83,38 @@ tab_sec_xii %>%
 
 # Edad de la primera relacion ----
 
-tab_eprimerarel <- tab_sec_xii %>% 
+tab_eprimerarel <- tab_sec_xii %>%
+  filter(edad_num < 20) %>% 
   mutate(edad_primerarel = parse_number(P12_6),
          edad_gpo_primerarel = cut( edad_primerarel,
                                  include.lowest = T,
                                  breaks = c(5, 9, 14, 19, 100)), 
-         consentimiento = factor(P12_7, c(1:2, 9), c("sí", "no", "no especificado"))) %>% 
-  filter(edad_primerarel < 90)
+         consentimiento = factor(P12_7, c(1:2, 9), c("sí", "no", "no especificado")))# %>% 
+  filter(edad_primerarel < 90,
+         !is.na(edad_primerarel))
 table(tab_eprimerarel$consentimiento, tab_eprimerarel$P12_7 ) 
+
+tab_eprimerarel %>% 
+  filter(edad_num < 20) %>% 
+  # group_by(edad_gpo_primerarel) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ))
+
+tab_eprimerarel %>% 
+  filter(edad_num < 20) %>% 
+  group_by(edad_gpo_primerarel) %>% 
+  summarise(n = n(), 
+            nfac = sum(FAC_MUJ)) %>% 
+  write.csv()
+
 
 tt <- tab_eprimerarel %>% 
   filter(edad_num < 20) %>% 
-  group_by(consentimiento, 
-           edad_gpo_primerarel) %>% 
+  group_by(edad_gpo_primerarel, 
+           consentimiento) %>% 
   summarise(n = n(), 
             nfac = sum(FAC_MUJ)) %>% 
-  filter(!is.na(edad_gpo_primerarel)) %>% 
+  # filter(!is.na(edad_gpo_primerarel)) %>% 
   group_by(edad_gpo_primerarel) %>% 
   mutate(prop = nfac/sum(nfac)) %>% 
   ungroup 
@@ -350,10 +366,15 @@ tab_razon <- tab_sec_xii %>%
                             "arreglo a cambio de dinero, etc", 
                             "salir de casa", 
                             "decisión mutua", 
-                            "otro"))) %>% 
-  filter(edad_union < 90)
+                            "otro"))) #%>% 
+  # filter(edad_union < 90)
 tab_razon %>% data.frame() %>% head
 
+
+
+tab_razon %>% 
+  group_by(is.na(edad_gpo_union)) %>% 
+  summarise(base = sum(FAC_MUJ))
 
 tab_razon %>% 
   group_by(edad_gpo_union) %>% 
