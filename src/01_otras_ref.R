@@ -352,12 +352,12 @@ input.l$tab_entprimeraunion_gpomuj_endireh <- tab
 
 # Razones de union actual ----
 tab_razon <- tab_sec_xii %>%
-  filter(edad_num < 20) %>% 
+  filter(edad_num < 20) %>%
   dplyr::select(ID_VIV:FAC_MUJ, P12_9, P12_10, P12_11) %>% 
   mutate(edad_union = parse_number(P12_9),
          edad_gpo_union = cut( edad_union,
                                 include.lowest = T,
-                                breaks = c(5, 9, 14, 19, 100)), 
+                                breaks = c(5, 9, 14, 19, 95, 100)), 
          edad_pareja = parse_number(P12_10), 
          razones = factor(P12_11, 1:7, 
                           c("embarazo y obligaron", 
@@ -368,8 +368,7 @@ tab_razon <- tab_sec_xii %>%
                             "decisión mutua", 
                             "otro"))) #%>% 
   # filter(edad_union < 90)
-tab_razon %>% data.frame() %>% head
-
+tab_razon
 
 
 tab_razon %>% 
@@ -378,7 +377,9 @@ tab_razon %>%
 
 tab_razon %>% 
   group_by(edad_gpo_union) %>% 
-  summarise(base = sum(FAC_MUJ))
+  summarise(base = sum(FAC_MUJ), 
+            n = n()) %>% 
+  write.csv()
 
 
 tab <- tab_razon %>% 
@@ -389,7 +390,7 @@ tab <- tab_razon %>%
               group_by(edad_gpo_union) %>% 
               summarise(base = sum(FAC_MUJ)), 
             by = "edad_gpo_union") %>% 
-  mutate(prop = 100*nfac/base) %>% 
+  mutate(prop = nfac/base) %>% 
   ungroup() %>% 
   na.omit()
 tab
